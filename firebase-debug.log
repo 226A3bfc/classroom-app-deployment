@@ -1,0 +1,96 @@
+[debug] [2025-10-02T13:42:18.900Z] ----------------------------------------------------------------------
+[debug] [2025-10-02T13:42:18.902Z] Command:       /Users/psp/.nvm/versions/node/v22.19.0/bin/node /opt/homebrew/bin/firebase deploy
+[debug] [2025-10-02T13:42:18.902Z] CLI Version:   14.16.0
+[debug] [2025-10-02T13:42:18.902Z] Platform:      darwin
+[debug] [2025-10-02T13:42:18.902Z] Node Version:  v22.19.0
+[debug] [2025-10-02T13:42:18.902Z] Time:          Thu Oct 02 2025 20:42:18 GMT+0700 (Indochina Time)
+[debug] [2025-10-02T13:42:18.902Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-02T13:42:18.992Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-02T13:42:18.993Z] > authorizing via signed-in user (pinit.wan@hastin.ac.th)
+[debug] [2025-10-02T13:42:18.993Z] [iam] checking project teacher-checklist-app for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-10-02T13:42:18.993Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:42:18.993Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:42:18.994Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions [none]
+[debug] [2025-10-02T13:42:18.994Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions x-goog-quota-user=projects/teacher-checklist-app
+[debug] [2025-10-02T13:42:18.994Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-10-02T13:42:20.313Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions 200
+[debug] [2025-10-02T13:42:20.314Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-10-02T13:42:20.314Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:42:20.314Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:42:20.315Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/teacher-checklist-app [none]
+[debug] [2025-10-02T13:42:20.997Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/teacher-checklist-app 200
+[debug] [2025-10-02T13:42:20.997Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/teacher-checklist-app {"projectId":"teacher-checklist-app","projectNumber":"778898649529","displayName":"teacher checklist app","name":"projects/teacher-checklist-app","resources":{"hostingSite":"teacher-checklist-app"},"state":"ACTIVE","etag":"1_6b2d0d88-5739-4660-a03b-a5637ec29a02"}
+[info] 
+[info] === Deploying to 'teacher-checklist-app'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2025-10-02T13:42:21.004Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:42:21.004Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:42:21.004Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/teacher-checklist-app/versions [none]
+[debug] [2025-10-02T13:42:21.004Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/teacher-checklist-app/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2025-10-02T13:42:22.330Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/teacher-checklist-app/versions 200
+[debug] [2025-10-02T13:47:40.137Z] ----------------------------------------------------------------------
+[debug] [2025-10-02T13:47:40.142Z] Command:       /Users/psp/.nvm/versions/node/v22.19.0/bin/node /Users/psp/.nvm/versions/node/v22.19.0/bin/firebase deploy
+[debug] [2025-10-02T13:47:40.143Z] CLI Version:   14.17.0
+[debug] [2025-10-02T13:47:40.143Z] Platform:      darwin
+[debug] [2025-10-02T13:47:40.143Z] Node Version:  v22.19.0
+[debug] [2025-10-02T13:47:40.143Z] Time:          Thu Oct 02 2025 20:47:40 GMT+0700 (Indochina Time)
+[debug] [2025-10-02T13:47:40.143Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-02T13:47:40.237Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-02T13:47:40.238Z] > authorizing via signed-in user (pinit.wan@hastin.ac.th)
+[debug] [2025-10-02T13:47:40.238Z] [iam] checking project teacher-checklist-app for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-10-02T13:47:40.238Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:47:40.238Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:47:40.239Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions [none]
+[debug] [2025-10-02T13:47:40.239Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions x-goog-quota-user=projects/teacher-checklist-app
+[debug] [2025-10-02T13:47:40.239Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-10-02T13:47:41.579Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions 200
+[debug] [2025-10-02T13:47:41.579Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-10-02T13:47:41.580Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:47:41.580Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:47:41.580Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/teacher-checklist-app [none]
+[debug] [2025-10-02T13:47:42.085Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/teacher-checklist-app 200
+[debug] [2025-10-02T13:47:42.086Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/teacher-checklist-app {"projectId":"teacher-checklist-app","projectNumber":"778898649529","displayName":"teacher checklist app","name":"projects/teacher-checklist-app","resources":{"hostingSite":"teacher-checklist-app"},"state":"ACTIVE","etag":"1_6b2d0d88-5739-4660-a03b-a5637ec29a02"}
+[info] 
+[info] === Deploying to 'teacher-checklist-app'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2025-10-02T13:47:42.093Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:47:42.094Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:47:42.094Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/teacher-checklist-app/versions [none]
+[debug] [2025-10-02T13:47:42.094Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/teacher-checklist-app/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2025-10-02T13:47:43.620Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/teacher-checklist-app/versions 200
+[debug] [2025-10-02T13:56:25.813Z] ----------------------------------------------------------------------
+[debug] [2025-10-02T13:56:25.818Z] Command:       /Users/psp/.nvm/versions/node/v20.19.5/bin/node /Users/psp/.nvm/versions/node/v22.19.0/bin/firebase deploy
+[debug] [2025-10-02T13:56:25.818Z] CLI Version:   14.17.0
+[debug] [2025-10-02T13:56:25.818Z] Platform:      darwin
+[debug] [2025-10-02T13:56:25.818Z] Node Version:  v20.19.5
+[debug] [2025-10-02T13:56:25.818Z] Time:          Thu Oct 02 2025 20:56:25 GMT+0700 (Indochina Time)
+[debug] [2025-10-02T13:56:25.818Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-10-02T13:56:25.906Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-10-02T13:56:25.906Z] > authorizing via signed-in user (pinit.wan@hastin.ac.th)
+[debug] [2025-10-02T13:56:25.906Z] [iam] checking project teacher-checklist-app for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-10-02T13:56:25.906Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:56:25.906Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:56:25.907Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions [none]
+[debug] [2025-10-02T13:56:25.907Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions x-goog-quota-user=projects/teacher-checklist-app
+[debug] [2025-10-02T13:56:25.907Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-10-02T13:56:27.253Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions 200
+[debug] [2025-10-02T13:56:27.254Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/teacher-checklist-app:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-10-02T13:56:27.255Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:56:27.255Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:56:27.256Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/teacher-checklist-app [none]
+[debug] [2025-10-02T13:56:28.634Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/teacher-checklist-app 200
+[debug] [2025-10-02T13:56:28.634Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/teacher-checklist-app {"projectId":"teacher-checklist-app","projectNumber":"778898649529","displayName":"teacher checklist app","name":"projects/teacher-checklist-app","resources":{"hostingSite":"teacher-checklist-app"},"state":"ACTIVE","etag":"1_6b2d0d88-5739-4660-a03b-a5637ec29a02"}
+[info] 
+[info] === Deploying to 'teacher-checklist-app'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2025-10-02T13:56:28.642Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:56:28.642Z] Checked if tokens are valid: true, expires at: 1759414559686
+[debug] [2025-10-02T13:56:28.643Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/teacher-checklist-app/versions [none]
+[debug] [2025-10-02T13:56:28.643Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/teacher-checklist-app/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2025-10-02T13:56:29.977Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/teacher-checklist-app/versions 200

@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="th" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-lang-key="pageTitle">ระบบตรวจความเรียบร้อยห้องเรียน</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- PDF Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+    
+    <style>
+        /* Base styles with transitions for smooth theme change */
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f7f8fc;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        /* Dark Mode Body - Applied globally via HTML class */
+        .dark {
+            color: #d1d5db; /* gray-300 */
+        }
+        .dark body {
+            background-color: #111827; /* gray-900 */
+        }
+
+        .form-section, .report-section, .admin-section {
+            background-color: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        /* Dark Mode Sections */
+        .dark .form-section, .dark .report-section, .dark .admin-section {
+            background-color: #1f2937; /* gray-800 */
+            box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1), 0 2px 4px -2px rgba(255, 255, 255, 0.06);
+        }
+
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            background-color: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 14px 0 rgba(0, 118, 255, 0.39);
+        }
+        [data-lang-key] { transition: opacity 0.3s ease; }
+
+        /* Styles for Pass/Fail buttons */
+        .check-item-container input[type="radio"] {
+            display: none;
+        }
+        .check-button {
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s ease-in-out;
+            border: 2px solid transparent;
+        }
+        .pass-button {
+            background-color: #f0fdf4; /* green-50 */
+            color: #16a34a; /* green-600 */
+        }
+        .fail-button {
+            background-color: #fef2f2; /* red-50 */
+            color: #dc2626; /* red-600 */
+        }
+        /* Dark Mode Pass/Fail buttons - Base */
+        .dark .pass-button {
+            background-color: #10b98120;
+            color: #34d399; /* green-400 */
+        }
+        .dark .fail-button {
+            background-color: #ef444420;
+            color: #f87171; /* red-400 */
+        }
+
+        /* Style for selected button */
+        .check-item-container input[type="radio"]:checked + label.pass-button {
+            background-color: #22c55e; /* green-500 */
+            color: white;
+            border-color: #16a34a; /* green-700 */
+            transform: scale(1.05);
+        }
+        .check-item-container input[type="radio"]:checked + label.fail-button {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+            border-color: #b91c1c; /* red-700 */
+            transform: scale(1.05);
+        }
+        /* Dark Mode Selected buttons */
+        .dark .check-item-container input[type="radio"]:checked + label.pass-button {
+            background-color: #10b981; /* green-600 */
+            border-color: #059669; /* green-700 */
+        }
+        .dark .check-item-container input[type="radio"]:checked + label.fail-button {
+            background-color: #ef4444; /* red-500 */
+            border-color: #dc2626; /* red-600 */
+        }
+        
+        .comment-display {
+            border-left: 4px solid #3b82f6;
+            background-color: #eff6ff;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+        }
+        .dark .comment-display {
+            border-left-color: #60a5fa;
+            background-color: #1e3a8a; /* blue-900 */
+        }
+
+        /* Modal Styles (General responsiveness is managed by max-width and percentage) */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 50;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal-backdrop.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: transform 0.3s ease, background-color 0.3s;
+        }
+        .modal-backdrop.visible .modal-content {
+            transform: scale(1);
+        }
+        .dark .modal-content {
+            background-color: #1f2937; /* gray-800 */
+        }
+        .admin-section {
+            max-width: 800px;
+            margin: 1rem auto;
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body class="antialiased text-gray-200">
+
+    <div class="max-w-4xl mx-auto p-4 md:p-6">
+        
+        <header class="flex justify-between items-center mb-6">
+            <div class="flex items-center">
+                <!-- เพิ่มไอคอนผู้ดูแล -->
+                <i class="fas fa-chalkboard-teacher text-blue-600 text-3xl mr-3"></i>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white" data-lang-key="appTitle">ระบบตรวจความเรียบร้อย</h1>
+                    <p class="text-gray-500 dark:text-gray-400 mt-1" data-lang-key="appSubtitle">สำหรับหัวหน้างาน</p>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <!-- ปุ่ม Admin -->
+                <button id="admin-mode-toggle" class="bg-yellow-500 text-white rounded-lg px-4 py-2 font-semibold hover:bg-yellow-600 transition shadow-sm text-sm" data-lang-key="adminButton">
+                    <i class="fas fa-tools mr-1"></i> Admin
+                </button>
+                <button id="lang-toggle" class="bg-white border border-gray-300 rounded-lg px-4 py-2 font-semibold text-gray-700 hover:bg-gray-100 transition shadow-sm text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600">
+                    EN / TH
+                </button>
+            </div>
+        </header>
+
+        <!-- ADMIN MANAGEMENT SECTION (Initially hidden) -->
+        <div id="admin-panel" class="hidden admin-section form-section p-6 mb-8">
+            <h2 class="text-xl font-bold text-gray-700 dark:text-gray-100 mb-4" data-lang-key="adminPanelTitle">แผงควบคุมผู้ดูแล</h2>
+            
+            <div class="space-y-6">
+                <!-- Supervisor Management -->
+                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+                    <h3 class="text-lg font-semibold mb-3 dark:text-gray-100" data-lang-key="manageSupervisorsTitle">จัดการผู้ตรวจ (Supervisor)</h3>
+                    <div id="supervisor-list-container" class="space-y-2 mb-4">
+                        <!-- Supervisor List will be rendered here -->
+                    </div>
+                    <form id="add-supervisor-form" class="flex gap-2">
+                        <input type="text" id="new-supervisor-name" required placeholder="ชื่อผู้ตรวจใหม่" class="flex-1 p-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                        <button type="submit" class="bg-green-600 text-white p-2 rounded-lg font-semibold hover:bg-green-700 transition" data-lang-key="addSupervisorButton">
+                            เพิ่ม
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Checklist Management -->
+                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+                    <h3 class="text-lg font-semibold mb-3 dark:text-gray-100" data-lang-key="manageChecklistTitle">จัดการหัวข้อการตรวจ (Checklist)</h3>
+                    <div id="checklist-admin-container" class="space-y-3">
+                        <!-- Checklist Items will be rendered here -->
+                    </div>
+                    <button id="save-checklist-button" class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition" data-lang-key="saveChecklistButton">
+                        บันทึกรายการตรวจ
+                    </button>
+                </div>
+
+                <!-- Analytics / Dashboard Section -->
+                <hr class="my-6 border-gray-300 dark:border-gray-600">
+                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
+                    <h3 class="text-lg font-semibold mb-3 dark:text-gray-100" data-lang-key="analyticsTitle">รายงานสรุปผลการวิเคราะห์</h3>
+                    <div id="analytics-time-frame" class="flex flex-col sm:flex-row gap-2 mb-4">
+                        <select id="analytics-month" class="p-2 border rounded-lg flex-1 dark:bg-gray-800 dark:border-gray-600 dark:text-white"></select>
+                        <select id="analytics-year" class="p-2 border rounded-lg flex-1 dark:bg-gray-800 dark:border-gray-600 dark:text-white"></select>
+                        <button id="load-analytics-btn" class="bg-blue-600 text-white p-2 rounded-lg font-semibold hover:bg-blue-700 transition" data-lang-key="loadAnalyticsButton">
+                            โหลดข้อมูล
+                        </button>
+                    </div>
+                    <div id="analytics-charts-container" class="space-y-4">
+                        <p id="no-analytics-data" class="hidden text-center text-gray-500 py-6 dark:text-gray-400" data-lang-key="noAnalyticsData">ไม่มีข้อมูลการตรวจในช่วงเวลาที่เลือก</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white p-3 rounded-lg shadow-inner dark:bg-gray-800">
+                                <p class="font-semibold text-sm mb-2 dark:text-gray-100" data-lang-key="chartOverallTitle">อัตราส่วนภาพรวม (ผ่าน/ไม่ผ่าน)</p>
+                                <canvas id="overallRatioChart"></canvas>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-inner dark:bg-gray-800">
+                                <p class="font-semibold text-sm mb-2 dark:text-gray-100" data-lang-key="chartFailureRateTitle">อัตราการไม่ผ่านตามรายการตรวจ</p>
+                                <canvas id="failureRateChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+             <div class="mt-6 text-center">
+                <button id="exit-admin-button" class="bg-gray-400 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-gray-500 transition" data-lang-key="exitAdminButton">
+                    ออกจากโหมดผู้ดูแล
+                </button>
+            </div>
+        </div>
+
+        <!-- FORM SECTION -->
+        <div id="form-section" class="form-section p-6 mb-8">
+            <h2 class="text-xl font-semibold mb-5 text-gray-700 dark:text-gray-100" data-lang-key="formTitle">บันทึกการตรวจ</h2>
+            <form id="inspection-form">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label for="yearLevel" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="yearLevelLabel">ระดับชั้น</label>
+                        <select id="yearLevel" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></select>
+                    </div>
+                    <div>
+                        <label for="classroom" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="classroomLabel">ห้อง</label>
+                        <select id="classroom" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                            <option value="A">A</option> <option value="B">B</option>
+                        </select>
+                    </div>
+                     <div>
+                        <label for="supervisorName" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="supervisorLabel">ผู้ตรวจ</label>
+                        <select id="supervisorName" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></select>
+                    </div>
+                </div>
+
+                <hr class="my-6 border-gray-300 dark:border-gray-700">
+
+                <div>
+                     <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-100 mb-3" data-lang-key="checklistTitle">หัวข้อการตรวจ</h3>
+                     <div id="checklist-form-container" class="space-y-5">
+                        <!-- Dynamic Checklist Items will be rendered here -->
+                     </div>
+                </div>
+
+                <!-- Comment Section -->
+                <div class="mt-6">
+                    <label for="comment" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="commentLabel">คอมเมนต์เพิ่มเติม</label>
+                    <textarea id="comment" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="บันทึกข้อเสนอแนะหรือรายละเอียดเพิ่มเติม"></textarea>
+                </div>
+
+                <div class="mt-8">
+                    <button type="submit" class="w-full bg-blue-600 text-white font-bold py-4 px-4 rounded-lg shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-transform transform hover:scale-105 text-lg" data-lang-key="submitButton">
+                        บันทึกการตรวจ
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- REPORT SECTION -->
+        <div id="report-section" class="report-section p-6">
+            <h2 class="text-xl font-semibold mb-5 text-gray-700 dark:text-gray-100" data-lang-key="reportTitle">รายงานผลการตรวจ</h2>
+
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-5">
+                <div class="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg w-full md:w-auto">
+                    <button id="daily-tab" class="tab-button active flex-1 md:flex-none px-6 py-2 rounded-md font-semibold" data-lang-key="dailyReport">รายวัน</button>
+                    <button id="weekly-tab" class="tab-button flex-1 md:flex-none px-6 py-2 rounded-md font-semibold" data-lang-key="weeklyReport">รายสัปดาห์</button>
+                </div>
+                <div class="flex space-x-2 w-full md:w-auto">
+                    <input type="date" id="reportDate" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 w-full md:w-auto dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <button id="download-pdf-btn" class="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition shadow-sm text-sm flex-shrink-0" data-lang-key="downloadPDF">
+                        <i class="fas fa-file-pdf"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Container - Target for PDF Generation -->
+            <div id="pdf-target-container">
+                 <div id="report-container" class="space-y-3">
+                     <div id="loader" class="text-center py-10 text-gray-500 dark:text-gray-400" data-lang-key="loading">กำลังโหลดข้อมูล...</div>
+                     <p id="no-items-message" class="hidden text-center text-gray-500 py-10 dark:text-gray-400" data-lang-key="noData">ไม่มีข้อมูลในวันที่เลือก</p>
+                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GENERIC CONFIRMATION/ALERT MODAL (Replaces alert() and confirm()) -->
+    <div id="confirm-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h2 id="modal-title" class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-100"></h2>
+            <p id="modal-message" class="mb-6 text-gray-600 dark:text-gray-300"></p>
+            <div class="flex gap-4 justify-end">
+                <button type="button" id="modal-cancel" class="bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500" data-lang-key="cancelButton"></button>
+                <button type="button" id="modal-confirm" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-red-700 transition"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT MODAL (Re-added for editing functionality) -->
+    <div id="edit-modal" class="modal-backdrop">
+        <div class="modal-content">
+            <h2 class="text-xl font-semibold mb-5 text-gray-700 dark:text-gray-100" data-lang-key="editTitle">แก้ไขการตรวจ</h2>
+            <form id="edit-inspection-form">
+                <input type="hidden" id="edit-doc-id">
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                         <div>
+                            <label for="edit-yearLevel" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="yearLevelLabel">ระดับชั้น</label>
+                            <select id="edit-yearLevel" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></select>
+                        </div>
+                        <div>
+                            <label for="edit-classroom" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="classroomLabel">ห้อง</label>
+                            <select id="edit-classroom" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"><option value="A">A</option><option value="B">B</option></select>
+                        </div>
+                         <div>
+                            <label for="edit-supervisorName" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="supervisorLabel">ผู้ตรวจ</label>
+                            <select id="edit-supervisorName" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></select>
+                        </div>
+                    </div>
+                    <hr class="border-gray-300 dark:border-gray-700">
+                    <div>
+                         <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-100 mb-3" data-lang-key="checklistTitle">หัวข้อการตรวจ</h3>
+                         <div id="edit-checklist-container" class="space-y-5"></div>
+                    </div>
+                    
+                    <div class="flex gap-4 mt-6">
+                        <button type="button" id="cancel-edit" class="w-full bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500" data-lang-key="cancelButton">ยกเลิก</button>
+                        <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition" data-lang-key="saveButton">บันทึกการเปลี่ยนแปลง</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp, where, Timestamp, doc, getDoc, updateDoc, deleteDoc, setDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        // --- 1. Firebase Configuration (ค่าจริงของโปรเจกต์ 'teacher checklist app') ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAwgZ4XXHNsTLSIw27K_ayZE95elOG4FLU",
+            authDomain: "teacher-checklist-app.firebaseapp.com",
+            projectId: "teacher-checklist-app", 
+            storageBucket: "teacher-checklist-app.firebasestorage.app",
+            messagingSenderId: "778898649529",
+            appId: "1:778898649529:web:076ddae689cb965f724668",
+            measurementId: "G-2GBMJHJ9V4"
+        };
+
+        // --- 2. Initialize Firebase & Firestore ---
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // --- 3. Global State and Translations ---
+        let DYNAMIC_SETTINGS = {
+            SUPERVISOR_NAMES: ["สมชาย ใจดี", "สมศรี มีสุข", "วิชัย รักงาน"],
+            CHECKLIST_ITEMS: [
+                { key: 'check1', th: '1. ความสะอาดของกระดานและพื้น', en: '1. Whiteboard and Floor Cleanliness' },
+                { key: 'check2', th: '2. การจัดโต๊ะและเก้าอี้', en: '2. Desk and Chair Arrangement' },
+                { key: 'check3', th: '3. การดูแลอุปกรณ์ในห้องเรียน', en: '3. Classroom Equipment Care' },
+                { key: 'check4', th: '4. การจัดการขยะ', en: '4. Waste Management' },
+                { key: 'check5', th: '5. การดูแลนักเรียนรายบุคคล', en: '5. Individual Student Care' },
+            ]
+        };
+        let currentLang = 'th';
+        let currentTheme = 'dark'; // FORCED DARK MODE
+        let unsubscribeSettings; // สำหรับยกเลิกการติดตามการตั้งค่า
+        let overallChart, failureChart; // Chart.js instances
+
+        const translations = {
+            en: {
+                // ... (existing translations)
+                pageTitle: "Classroom Inspection App",
+                appTitle: "Classroom Inspection",
+                appSubtitle: "For Supervisors",
+                formTitle: "Log Inspection",
+                yearLevelLabel: "Year Level",
+                classroomLabel: "Class",
+                supervisorLabel: "Supervisor",
+                supervisorSelect: "— Select Supervisor —",
+                checklistTitle: "Inspection Checklist",
+                submitButton: "Submit Inspection",
+                reportTitle: "Inspection Reports",
+                dailyReport: "Daily",
+                weeklyReport: "Weekly",
+                loading: "Loading data...",
+                passBtn: "Pass", 
+                failBtn: "Fail", 
+                noData: "No data for the selected period.",
+                pass: "Pass",
+                fail: "Fail",
+                by: "by",
+                editBtn: "Edit",
+                deleteBtn: "Delete",
+                downloadPDF: "PDF",
+                deleteConfirm: "Are you sure you want to delete this inspection record? This action cannot be undone.",
+                deleteSuccess: "Inspection record deleted successfully!",
+                deleteError: "Error deleting record:",
+                editTitle: "Edit Inspection",
+                cancelButton: "Cancel",
+                saveButton: "Save Changes",
+                adminButton: "Admin",
+                adminPanelTitle: "Admin Control Panel",
+                manageSupervisorsTitle: "Manage Supervisors",
+                manageChecklistTitle: "Manage Checklist Items",
+                addSupervisorButton: "Add",
+                saveChecklistButton: "Save Checklist",
+                exitAdminButton: "Exit Admin Mode",
+                deleteSupervisorConfirm: "Delete supervisor {name}? This cannot be undone.",
+                editChecklistItem: "Edit Item",
+                supervisorNameLabel: "Supervisor Name",
+                checklistItemTH: "Item (Thai)",
+                checklistItemEN: "Item (English)",
+                alertTitle: "Notification",
+                confirmTitle: "Confirmation",
+                commentLabel: "Additional Comments",
+                commentTitle: "Comment",
+                noComment: "(No comments)",
+                // New Resolution & Analytics
+                resolutionStatusLabel: "Resolution Status",
+                resolutionPending: "Pending Resolution",
+                resolutionResolved: "Resolved",
+                resolveButton: "Mark as Resolved",
+                analyticsTitle: "Analysis Report Summary",
+                chartOverallTitle: "Overall Ratio (Pass/Fail)",
+                chartFailureRateTitle: "Failure Rate by Checklist Item",
+                loadAnalyticsButton: "Load Data",
+                count: "Count",
+                noAnalyticsData: "No inspection data available for the selected period.",
+            },
+            th: {
+                // ... (existing translations)
+                pageTitle: "ระบบตรวจความเรียบร้อยห้องเรียน",
+                appTitle: "ระบบตรวจความเรียบร้อย",
+                appSubtitle: "สำหรับหัวหน้างาน",
+                formTitle: "บันทึกการตรวจ",
+                yearLevelLabel: "ระดับชั้น",
+                classroomLabel: "ห้อง",
+                supervisorLabel: "ผู้ตรวจ",
+                supervisorSelect: "— เลือกผู้ตรวจ —",
+                checklistTitle: "หัวข้อการตรวจ",
+                submitButton: "บันทึกการตรวจ",
+                reportTitle: "รายงานผลการตรวจ",
+                dailyReport: "รายวัน",
+                weeklyReport: "รายสัปดาห์",
+                loading: "กำลังโหลดข้อมูล...",
+                passBtn: "ผ่าน", 
+                failBtn: "ไม่ผ่าน", 
+                noData: "ไม่มีข้อมูลในวันที่เลือก",
+                pass: "ผ่าน",
+                fail: "ไม่ผ่าน",
+                by: "โดย",
+                editBtn: "แก้ไข",
+                deleteBtn: "ลบ",
+                downloadPDF: "PDF",
+                deleteConfirm: "คุณแน่ใจหรือไม่ว่าต้องการลบรายการตรวจนี้? การดำเนินการนี้ไม่สามารถยกเลิกได้",
+                deleteSuccess: "ลบรายการตรวจเรียบร้อยแล้ว!",
+                deleteError: "เกิดข้อผิดพลาดในการลบรายการ:",
+                editTitle: "แก้ไขการตรวจ",
+                cancelButton: "ยกเลิก",
+                saveButton: "บันทึกการเปลี่ยนแปลง",
+                adminButton: "ผู้ดูแล",
+                adminPanelTitle: "แผงควบคุมผู้ดูแล",
+                manageSupervisorsTitle: "จัดการผู้ตรวจ (Supervisor)",
+                manageChecklistTitle: "จัดการหัวข้อการตรวจ (Checklist)",
+                addSupervisorButton: "เพิ่ม",
+                saveChecklistButton: "บันทึกรายการตรวจ",
+                exitAdminButton: "ออกจากโหมดผู้ดูแล",
+                deleteSupervisorConfirm: "ลบผู้ตรวจ {name}? การดำเนินการนี้ไม่สามารถยกเลิกได้",
+                editChecklistItem: "แก้ไขหัวข้อ",
+                supervisorNameLabel: "ชื่อผู้ตรวจ",
+                checklistItemTH: "หัวข้อ (ไทย)",
+                checklistItemEN: "หัวข้อ (อังกฤษ)",
+                alertTitle: "แจ้งเตือน",
+                confirmTitle: "ยืนยัน",
+                commentLabel: "คอมเมนต์เพิ่มเติม",
+                commentTitle: "คอมเมนต์",
+                noComment: "(ไม่มีคอมเมนต์)",
+                // New Resolution & Analytics
+                resolutionStatusLabel: "สถานะการแก้ไข",
+                resolutionPending: "รอการแก้ไข",
+                resolutionResolved: "แก้ไขเรียบร้อย",
+                resolveButton: "ยืนยันการแก้ไข",
+                analyticsTitle: "รายงานสรุปผลการวิเคราะห์",
+                chartOverallTitle: "อัตราส่วนภาพรวม (ผ่าน/ไม่ผ่าน)",
+                chartFailureRateTitle: "อัตราการไม่ผ่านตามรายการตรวจ",
+                loadAnalyticsButton: "โหลดข้อมูล",
+                count: "จำนวน",
+                noAnalyticsData: "ไม่มีข้อมูลการตรวจในช่วงเวลาที่เลือก",
+            }
+        };
+
+        // --- 4. DOM Elements ---
+        const langToggle = document.getElementById('lang-toggle');
+        const form = document.getElementById('inspection-form');
+        const checklistFormContainer = document.getElementById('checklist-form-container');
+        const reportContainer = document.getElementById('report-container');
+        const loader = document.getElementById('loader');
+        const noItemsMessage = document.getElementById('no-items-message');
+        const dailyTab = document.getElementById('daily-tab');
+        const weeklyTab = document.getElementById('weekly-tab');
+        const reportDateInput = document.getElementById('reportDate');
+        const yearLevelSelect = document.getElementById('yearLevel');
+        const supervisorNameSelect = document.getElementById('supervisorName');
+        
+        const downloadPdfBtn = document.getElementById('download-pdf-btn'); 
+        const commentInput = document.getElementById('comment'); 
+        
+        // Re-added DOM elements for Edit Modal
+        const editModal = document.getElementById('edit-modal');
+        const editForm = document.getElementById('edit-inspection-form');
+        const cancelEditBtn = document.getElementById('cancel-edit');
+        const editChecklistContainer = document.getElementById('edit-checklist-container');
+
+
+        // Admin Elements
+        const adminPanel = document.getElementById('admin-panel');
+        const formSection = document.getElementById('form-section');
+        const reportSection = document.getElementById('report-section');
+        const adminModeToggle = document.getElementById('admin-mode-toggle');
+        const exitAdminButton = document.getElementById('exit-admin-button');
+        const supervisorListContainer = document.getElementById('supervisor-list-container');
+        const addSupervisorForm = document.getElementById('add-supervisor-form');
+        const checklistAdminContainer = document.getElementById('checklist-admin-container');
+        const saveChecklistButton = document.getElementById('save-checklist-button');
+        const noAnalyticsDataMessage = document.getElementById('no-analytics-data');
+        // Removed: const themeToggle = document.getElementById('theme-toggle');
+
+        // Modal Elements (Generic Alert/Confirm)
+        const confirmModal = document.getElementById('confirm-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCancel = document.getElementById('modal-cancel');
+        const modalConfirm = document.getElementById('modal-confirm');
+
+
+        // --- 5. Theme/Dark Mode Logic (Removed toggling logic, forced dark) ---
+        
+        function applyTheme(theme) {
+            // No action needed as theme is forced via HTML class="dark"
+            // Keeping currentTheme variable updated for chart rendering consistency
+            currentTheme = 'dark'; 
+        }
+
+        // --- 6. Custom Modal (Replaces alert/confirm) ---
+        function showCustomModal(titleKey, message, isConfirm = false, onConfirm = null) {
+            return new Promise(resolve => {
+                modalTitle.textContent = translations[currentLang][titleKey];
+                modalMessage.textContent = message;
+                
+                modalCancel.textContent = translations[currentLang].cancelButton;
+                modalCancel.classList.toggle('hidden', !isConfirm);
+                
+                modalConfirm.textContent = isConfirm ? translations[currentLang].confirmTitle : translations[currentLang].alertTitle;
+                modalConfirm.classList.remove('bg-red-600', 'bg-blue-600', 'bg-red-500', 'bg-blue-500'); // Clean up Tailwind classes
+                modalConfirm.classList.add(isConfirm ? 'bg-red-600' : 'bg-blue-600');
+
+
+                confirmModal.classList.add('visible');
+
+                const handleCancel = () => {
+                    confirmModal.classList.remove('visible');
+                    modalCancel.removeEventListener('click', handleCancel);
+                    modalConfirm.removeEventListener('click', handleConfirm);
+                    resolve(false);
+                };
+
+                const handleConfirm = () => {
+                    confirmModal.classList.remove('visible');
+                    modalCancel.removeEventListener('click', handleCancel);
+                    modalConfirm.removeEventListener('click', handleConfirm);
+                    resolve(true);
+                };
+
+                modalCancel.addEventListener('click', handleCancel);
+                modalConfirm.addEventListener('click', handleConfirm);
+            });
+        }
+
+
+        // --- 7. Dynamic Data Management (Firestore Settings) ---
+
+        /** โหลดรายการผู้ตรวจและหัวข้อการตรวจจาก Firestore แบบ Realtime */
+        function loadSettings() {
+             if (unsubscribeSettings) unsubscribeSettings();
+
+             const settingsRef = doc(db, "settings", "config");
+
+             unsubscribeSettings = onSnapshot(settingsRef, (docSnap) => {
+                 if (docSnap.exists()) {
+                     const data = docSnap.data();
+                     
+                     // 1. จัดการ Supervisor
+                     if (Array.isArray(data.supervisors) && data.supervisors.length > 0) {
+                        DYNAMIC_SETTINGS.SUPERVISOR_NAMES = data.supervisors;
+                     } else {
+                        // ถ้าไม่มีข้อมูลใน Firestore ให้ใช้ค่าเริ่มต้นและบันทึกกลับไป
+                        setDoc(settingsRef, { supervisors: DYNAMIC_SETTINGS.SUPERVISOR_NAMES }, { merge: true });
+                     }
+
+                     // 2. จัดการ Checklist
+                     if (Array.isArray(data.checklist) && data.checklist.length > 0) {
+                         DYNAMIC_SETTINGS.CHECKLIST_ITEMS = data.checklist;
+                     } else {
+                         // ถ้าไม่มีข้อมูลใน Firestore ให้ใช้ค่าเริ่มต้นและบันทึกกลับไป
+                        setDoc(settingsRef, { checklist: DYNAMIC_SETTINGS.CHECKLIST_ITEMS }, { merge: true });
+                     }
+                 } else {
+                     // สร้างเอกสารเริ่มต้นถ้ายังไม่มี
+                     setDoc(settingsRef, DYNAMIC_SETTINGS);
+                 }
+                 
+                 // อัพเดท UI ที่เกี่ยวข้องทันที
+                 populateSupervisors(supervisorNameSelect);
+                 populateSupervisors(document.getElementById('edit-supervisorName')); // Re-added for edit modal
+                 renderChecklistForm(checklistFormContainer);
+                 renderChecklistAdmin();
+                 renderSupervisorAdmin();
+
+             }, (error) => {
+                 console.error("Error loading settings:", error);
+                 showCustomModal('alertTitle', currentLang === 'th' ? 'เกิดข้อผิดพลาดในการโหลดการตั้งค่า: ' + error.message : 'Error loading settings: ' + error.message);
+             });
+        }
+
+        // --- 8. UI Rendering Helpers ---
+        
+        function populateSupervisors(selectElement) {
+            const selectedValue = selectElement.value;
+            selectElement.innerHTML = ''; 
+
+            const defaultOption = document.createElement('option');
+            defaultOption.value = "";
+            defaultOption.textContent = translations[currentLang].supervisorSelect;
+            defaultOption.disabled = true;
+            selectElement.appendChild(defaultOption);
+
+            DYNAMIC_SETTINGS.SUPERVISOR_NAMES.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                selectElement.appendChild(option);
+            });
+            
+            if (DYNAMIC_SETTINGS.SUPERVISOR_NAMES.includes(selectedValue)) {
+                selectElement.value = selectedValue;
+            } else {
+                 selectElement.selectedIndex = 0;
+            }
+        }
+        
+        function populateYearLevels(selectElement) {
+            const selectedValue = selectElement.value;
+            selectElement.innerHTML = ''; 
+            
+            for (let i = 1; i <= 13; i++) {
+                const option = document.createElement('option');
+                option.value = `Y${i}`;
+                option.textContent = `Year ${i}`;
+                selectElement.appendChild(option);
+            }
+            if (selectedValue) {
+                 selectElement.value = selectedValue;
+            } else {
+                 selectElement.selectedIndex = 0;
+            }
+        }
+
+        /** สร้างรายการ Checklist สำหรับฟอร์มบันทึกการตรวจ */
+        function renderChecklistForm(container, prefix = '') {
+            container.innerHTML = '';
+            DYNAMIC_SETTINGS.CHECKLIST_ITEMS.forEach((item) => {
+                const checkKey = item.key;
+                const text = item[currentLang];
+                
+                const itemHTML = `
+                    <div class="check-item-container">
+                        <p class="font-semibold text-gray-700 dark:text-gray-300 mb-2">${text}</p>
+                        <div class="flex gap-3">
+                            <input type="radio" id="${prefix}${checkKey}-pass" name="${prefix}${checkKey}_status" value="pass" required>
+                            <label for="${prefix}${checkKey}-pass" class="flex-1 check-button pass-button" data-lang-key="passBtn">${translations[currentLang].passBtn}</label>
+                            <input type="radio" id="${prefix}${checkKey}-fail" name="${prefix}${checkKey}_status" value="fail">
+                            <label for="${prefix}${checkKey}-fail" class="flex-1 check-button fail-button" data-lang-key="failBtn">${translations[currentLang].failBtn}</label>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', itemHTML);
+            });
+        }
+
+        // --- 9. Core Data Flow Logic ---
+
+        function renderReports(items) {
+            reportContainer.innerHTML = '';
+            if (items.length === 0) {
+                noItemsMessage.classList.remove('hidden');
+                reportContainer.appendChild(noItemsMessage);
+                return;
+            }
+            noItemsMessage.classList.add('hidden');
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white p-4 rounded-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700";
+
+                const inspectionDate = item.inspectionTimestamp.toDate();
+                const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
+                const locale = currentLang === 'th' ? 'th-TH' : 'en-US'; 
+                const dateString = inspectionDate.toLocaleDateString(locale, dateOptions);
+                const timeString = inspectionDate.toLocaleTimeString(locale, timeOptions);
+
+                let checklistHTML = '<ul class="mt-3 space-y-2 text-sm">';
+                
+                // Check for failures and set default status
+                const hasFailures = Object.values(item.checklist || {}).includes(false);
+                let currentResolutionStatus = item.resolutionStatus || 'Pending';
+                
+                // Auto-resolve if no failures found
+                if (!hasFailures && currentResolutionStatus === 'Pending') {
+                    currentResolutionStatus = 'Resolved';
+                }
+
+                // Checklist Items
+                DYNAMIC_SETTINGS.CHECKLIST_ITEMS.forEach(checkItem => {
+                    const checkKey = checkItem.key;
+                    const passed = item.checklist && item.checklist[checkKey] !== undefined ? item.checklist[checkKey] : false; 
+                    
+                    const text = checkItem[currentLang];
+                    const statusText = passed ? translations[currentLang].pass : translations[currentLang].fail;
+                    const colorClass = passed ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+                    const icon = passed 
+                        ? `<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`
+                        : `<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                    
+                    // Dark Mode background for checklist items
+                    const bgClass = passed ? 'bg-green-50 dark:bg-green-900/30' : 'bg-red-50 dark:bg-red-900/30';
+
+                    checklistHTML += `<li class="flex items-center justify-between p-2 rounded-md ${bgClass}"><div class="flex items-center"><span class="${colorClass}">${icon}</span><span>${text}</span></div><span class="font-semibold ${colorClass}">${statusText}</span></li>`;
+                });
+
+                checklistHTML += '</ul>';
+
+                // Status Badge & Resolve Button Logic
+                let statusBadge = '';
+                let statusClass = '';
+                let statusText = '';
+                let resolveButtonHTML = '';
+
+                if (currentResolutionStatus === 'Resolved') {
+                    statusText = translations[currentLang].resolutionResolved;
+                    statusClass = 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100';
+                } else if (currentResolutionStatus === 'Pending' && hasFailures) {
+                    statusText = translations[currentLang].resolutionPending;
+                    statusClass = 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100';
+                    resolveButtonHTML = `<button class="resolve-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-lg text-xs transition" data-id="${item.id}" data-lang-key="resolveButton">${translations[currentLang].resolveButton}</button>`;
+                }
+                
+                statusBadge = `<span class="text-xs font-semibold px-2.5 py-0.5 rounded ${statusClass}">${statusText}</span>`;
+
+
+                // Display Comment Section
+                const commentContent = item.comment ? item.comment.trim() : '';
+                let commentHTML = '';
+                if (commentContent) {
+                    commentHTML = `
+                        <div class="mt-4 comment-display">
+                            <p class="text-sm font-semibold text-blue-700 dark:text-blue-400 mb-1" data-lang-key="commentTitle">${translations[currentLang].commentTitle}:</p>
+                            <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">${commentContent}</p>
+                        </div>
+                    `;
+                } else {
+                    commentHTML = `
+                         <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">${translations[currentLang].noComment}</div>
+                    `;
+                }
+
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="font-bold text-lg text-blue-700 dark:text-blue-400">${item.yearLevel} / ${item.classroom}</div>
+                            <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">${translations[currentLang].by} <span class="font-semibold">${item.supervisorName}</span></div>
+                        </div>
+                        <div class="text-right flex-shrink-0 ml-4">
+                            <div class="text-sm text-gray-500 dark:text-gray-400">${dateString}</div>
+                            <div class="text-sm font-semibold text-gray-700 dark:text-gray-200">${timeString} น.</div>
+                        </div>
+                    </div>
+                    ${checklistHTML}
+                    ${commentHTML}
+                    <div class="mt-4 flex justify-between items-center">
+                        <div>${statusBadge}</div>
+                        <div class="flex gap-3">
+                            ${resolveButtonHTML}
+                            <button class="edit-btn bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg text-sm transition dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600" data-id="${item.id}" data-lang-key="editBtn">${translations[currentLang].editBtn}</button>
+                            <button class="delete-btn bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg text-sm transition dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50" data-id="${item.id}" data-lang-key="deleteBtn">${translations[currentLang].deleteBtn}</button>
+                        </div>
+                    </div>
+                `;
+                reportContainer.appendChild(card);
+            });
+        }
+        
+        let unsubscribe;
+        function fetchAndRenderInspections() {
+            if (unsubscribe) unsubscribe();
+
+            loader.style.display = 'block';
+            noItemsMessage.classList.add('hidden');
+            reportContainer.innerHTML = '';
+            reportContainer.appendChild(loader);
+            reportContainer.appendChild(noItemsMessage);
+
+            const selectedDate = new Date(reportDateInput.value);
+            selectedDate.setHours(0, 0, 0, 0);
+
+            let startDate, endDate;
+            const activeTab = dailyTab.classList.contains('active') ? 'daily' : 'weekly';
+
+            if (activeTab === 'daily') {
+                startDate = selectedDate;
+                endDate = new Date(selectedDate);
+                endDate.setDate(endDate.getDate() + 1);
+            } else {
+                const dayOfWeek = selectedDate.getDay();
+                startDate = new Date(selectedDate);
+                // วันจันทร์ (1) คือ -dayOfWeek + 1, วันอาทิตย์ (0) คือ -6
+                startDate.setDate(selectedDate.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)); 
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 7);
+            }
+
+            const inspectionsCollection = collection(db, "inspections");
+            const q = query(inspectionsCollection, 
+                where("inspectionTimestamp", ">=", Timestamp.fromDate(startDate)),
+                where("inspectionTimestamp", "<", Timestamp.fromDate(endDate)),
+                orderBy("inspectionTimestamp", "desc")
+            );
+
+            unsubscribe = onSnapshot(q, (snapshot) => {
+                const items = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderReports(items);
+                loader.style.display = 'none';
+            }, (error) => {
+                console.error("Error fetching data:", error);
+                loader.textContent = currentLang === 'th' ? "เกิดข้อผิดพลาดในการโหลดข้อมูล" : "Error loading data.";
+            });
+        }
+        
+        function switchTab(tab) {
+            dailyTab.classList.toggle('active', tab === 'daily');
+            weeklyTab.classList.toggle('active', tab === 'weekly');
+            fetchAndRenderInspections();
+        }
+
+        // --- 10. Language Logic ---
+        
+        /** อัพเดทข้อความทั้งหมดใน UI ตามภาษาที่เลือก */
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                el.style.opacity = '0';
+                setTimeout(() => {
+                   el.textContent = translations[lang][key] || key;
+                   el.style.opacity = '1';
+                }, 150);
+            });
+            // เรียกใช้ฟังก์ชัน UI Helpers อีกครั้งเพื่อรีเฟรชตัวเลือกและรายงาน
+            populateSupervisors(supervisorNameSelect);
+            populateSupervisors(document.getElementById('edit-supervisorName'));
+            renderChecklistForm(checklistFormContainer);
+            renderChecklistAdmin();
+            renderSupervisorAdmin();
+            setupAnalyticsControls(); // Setup analytics controls on language change
+            loadAnalyticsData(); // Reload analytics data
+            fetchAndRenderInspections();
+        }
+
+        // --- 11. Initial Setup & Event Handlers ---
+
+        function initializeAppCore() {
+            const today = new Date().toISOString().split('T')[0];
+            reportDateInput.value = today;
+
+            populateYearLevels(yearLevelSelect);
+            populateYearLevels(document.getElementById('edit-yearLevel')); // Re-added for edit modal
+            
+            loadSettings(); // เริ่มโหลดการตั้งค่า
+            setupAnalyticsControls(); // Initial setup of analytics controls
+            applyTheme('dark'); // Apply dark theme immediately and permanently
+            setLanguage(currentLang); // This calls fetchAndRenderInspections
+            
+            // Event Listeners
+            langToggle.addEventListener('click', () => setLanguage(currentLang === 'th' ? 'en' : 'th'));
+            // Removed: themeToggle.addEventListener('click', toggleTheme); 
+            form.addEventListener('submit', handleFormSubmit);
+            dailyTab.addEventListener('click', () => switchTab('daily'));
+            weeklyTab.addEventListener('click', () => switchTab('weekly'));
+            reportDateInput.addEventListener('change', fetchAndRenderInspections);
+            reportContainer.addEventListener('click', handleReportAction); 
+            
+            downloadPdfBtn.addEventListener('click', generatePDFReport); // PDF Listener
+            
+            // Edit Modal Listeners (Re-added)
+            const editModal = document.getElementById('edit-modal');
+            const editForm = document.getElementById('edit-inspection-form');
+            const cancelEditBtn = document.getElementById('cancel-edit');
+
+            cancelEditBtn.addEventListener('click', () => editModal.classList.remove('visible')); 
+            editForm.addEventListener('submit', handleUpdateSubmit);
+            
+            // Admin Listeners
+            adminModeToggle.addEventListener('click', toggleAdminMode);
+            exitAdminButton.addEventListener('click', toggleAdminMode);
+            addSupervisorForm.addEventListener('submit', handleAddSupervisor);
+            supervisorListContainer.addEventListener('click', handleSupervisorAction);
+            saveChecklistButton.addEventListener('click', handleSaveChecklist);
+        }
+        
+        // --- 12. Admin Mode Logic ---
+
+        function toggleAdminMode() {
+            const isAdmin = adminPanel.classList.contains('hidden');
+            adminPanel.classList.toggle('hidden', !isAdmin);
+            formSection.classList.toggle('hidden', isAdmin);
+            reportSection.classList.toggle('hidden', isAdmin);
+
+            if (isAdmin) {
+                // Load analytics when admin panel opens
+                loadAnalyticsData();
+            }
+        }
+
+        async function handleAddSupervisor(e) {
+            e.preventDefault();
+            const input = document.getElementById('new-supervisor-name');
+            const newName = input.value.trim();
+
+            if (newName && !DYNAMIC_SETTINGS.SUPERVISOR_NAMES.includes(newName)) {
+                const newSupervisors = [...DYNAMIC_SETTINGS.SUPERVISOR_NAMES, newName];
+                try {
+                    await updateDoc(doc(db, "settings", "config"), { supervisors: newSupervisors });
+                    input.value = '';
+                } catch (error) {
+                    showCustomModal('alertTitle', currentLang === 'th' ? 'ไม่สามารถเพิ่มผู้ตรวจได้: ' + error.message : 'Failed to add supervisor: ' + error.message);
+                }
+            } else if (newName && DYNAMIC_SETTINGS.SUPERVISOR_NAMES.includes(newName)) {
+                showCustomModal('alertTitle', currentLang === 'th' ? 'ชื่อผู้ตรวจนี้มีอยู่แล้ว' : 'Supervisor name already exists.');
+            }
+        }
+
+        async function handleSupervisorAction(e) {
+            const deleteBtn = e.target.closest('.delete-supervisor-btn');
+            if (deleteBtn) {
+                const nameToDelete = deleteBtn.dataset.name;
+                const confirmMessage = translations[currentLang].deleteSupervisorConfirm.replace('{name}', nameToDelete);
+                
+                const confirmed = await showCustomModal('confirmTitle', confirmMessage, true);
+                
+                if (confirmed) {
+                    const newSupervisors = DYNAMIC_SETTINGS.SUPERVISOR_NAMES.filter(name => name !== nameToDelete);
+                    try {
+                        await updateDoc(doc(db, "settings", "config"), { supervisors: newSupervisors });
+                    } catch (error) {
+                         showCustomModal('alertTitle', currentLang === 'th' ? 'ไม่สามารถลบผู้ตรวจได้: ' + error.message : 'Failed to delete supervisor: ' + error.message);
+                    }
+                }
+            }
+        }
+
+        function renderSupervisorAdmin() {
+            supervisorListContainer.innerHTML = DYNAMIC_SETTINGS.SUPERVISOR_NAMES.map(name => `
+                <div class="flex justify-between items-center bg-white p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
+                    <span class="dark:text-gray-200">${name}</span>
+                    <button class="delete-supervisor-btn text-red-600 hover:text-red-800 transition text-sm px-2" data-name="${name}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderChecklistAdmin() {
+            checklistAdminContainer.innerHTML = DYNAMIC_SETTINGS.CHECKLIST_ITEMS.map((item, index) => `
+                <div class="p-3 border rounded-lg bg-white space-y-2 dark:bg-gray-800 dark:border-gray-600">
+                    <p class="font-medium dark:text-gray-100">${item.th}</p>
+                    <input type="text" data-index="${index}" data-lang="th" value="${item.th}" placeholder="${translations[currentLang].checklistItemTH}" class="w-full p-2 border rounded-lg text-sm mb-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <input type="text" data-index="${index}" data-lang="en" value="${item.en}" placeholder="${translations[currentLang].checklistItemEN}" class="w-full p-2 border rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                </div>
+            `).join('');
+        }
+
+        async function handleSaveChecklist() {
+            const checklistInputs = checklistAdminContainer.querySelectorAll('input[type="text"]');
+            const newChecklist = [];
+            const tempItems = {}; // ใช้พักข้อมูลเพื่อจัดกลุ่มตาม index
+
+            checklistInputs.forEach(input => {
+                const index = parseInt(input.dataset.index);
+                const lang = input.dataset.lang;
+                const value = input.value.trim();
+
+                if (!tempItems[index]) {
+                    tempItems[index] = { key: `check${index + 1}` };
+                }
+                tempItems[index][lang] = value;
+            });
+
+            // แปลงกลับเป็น Array และกรองรายการที่ไม่สมบูรณ์ (ถ้ามี)
+            for (const key in tempItems) {
+                if (tempItems[key].th && tempItems[key].en) {
+                    newChecklist.push(tempItems[key]);
+                }
+            }
+
+            if (newChecklist.length === 0) {
+                 return showCustomModal('alertTitle', currentLang === 'th' ? 'รายการตรวจว่างเปล่า โปรดเพิ่มหัวข้อ' : 'Checklist cannot be empty. Please add items.');
+            }
+
+            try {
+                await updateDoc(doc(db, "settings", "config"), { checklist: newChecklist });
+                showCustomModal('alertTitle', currentLang === 'th' ? 'บันทึกรายการตรวจเรียบร้อยแล้ว' : 'Checklist saved successfully.');
+            } catch (error) {
+                showCustomModal('alertTitle', currentLang === 'th' ? 'ไม่สามารถบันทึกรายการตรวจได้: ' + error.message : 'Failed to save checklist: ' + error.message);
+            }
+        }
+
+
+        // --- 13. PDF Generation Logic ---
+        
+        async function generatePDFReport() {
+            // โหลด jsPDF จาก window
+            const { jsPDF } = window.jspdf;
+            
+            // ซ่อนปุ่มแก้ไข/ลบ ก่อนแคปเจอร์
+            const actionButtons = document.querySelectorAll('.delete-btn, .edit-btn, .resolve-btn'); // รวมปุ่ม resolve
+            actionButtons.forEach(btn => btn.style.display = 'none');
+            
+            const originalReportTitle = document.querySelector('#report-section h2').textContent;
+            
+            downloadPdfBtn.disabled = true;
+            downloadPdfBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+            
+            const element = document.getElementById('pdf-target-container'); // แคปเจอร์เฉพาะส่วนรายงาน
+            const filename = `${originalReportTitle.trim()}_${reportDateInput.value}.pdf`;
+            
+            try {
+                // สร้าง Header สำหรับ PDF (แยกต่างหากจาก HTML)
+                const headerText = `${translations[currentLang].appTitle} - ${originalReportTitle} (${reportDateInput.value})`;
+                
+                // ใช้ html2canvas เพื่อแปลง HTML เป็น Canvas
+                const canvas = await html2canvas(element, { 
+                    scale: 2, 
+                    allowTaint: true, 
+                    useCORS: true,
+                    // Ensure background is captured correctly for PDF (handle dark mode print)
+                    backgroundColor: '#111827' // Forced dark background color
+                });
+                const imgData = canvas.toDataURL('image/png');
+                
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                
+                const margin = 10;
+                let yOffset = margin;
+
+                // 1. เพิ่ม Header
+                pdf.setFontSize(14);
+                pdf.text(headerText, pdfWidth / 2, yOffset, { align: 'center' });
+                yOffset += 5;
+                
+                // 2. เพิ่มเส้นคั่น
+                pdf.setLineWidth(0.5);
+                pdf.line(margin, yOffset, pdfWidth - margin, yOffset);
+                yOffset += 5;
+                
+                // 3. เพิ่มรูปภาพของรายงาน (จาก Canvas)
+                const imgWidth = pdfWidth - (2 * margin);
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                let heightLeft = imgHeight;
+                let currentY = yOffset;
+
+                pdf.addImage(imgData, 'PNG', margin, currentY, imgWidth, imgHeight);
+                heightLeft -= (pdfHeight - currentY - margin);
+
+                while (heightLeft > 0) {
+                    currentY = 0;
+                    pdf.addPage();
+                    pdf.addImage(imgData, 'PNG', margin, - (imgHeight - heightLeft), imgWidth, imgHeight);
+                    heightLeft -= (pdfHeight - margin);
+                }
+
+                pdf.save(filename);
+
+            } catch (error) {
+                console.error("PDF generation failed:", error);
+                await showCustomModal('alertTitle', currentLang === 'th' ? 'เกิดข้อผิดพลาดในการสร้างไฟล์ PDF' : 'Failed to generate PDF file.');
+            } finally {
+                // แสดงปุ่มกลับมา
+                actionButtons.forEach(btn => btn.style.display = '');
+                downloadPdfBtn.disabled = false;
+                downloadPdfBtn.innerHTML = `<i class="fas fa-file-pdf"></i>`;
+                setLanguage(currentLang); // รีเฟรชข้อความปุ่ม
+            }
+        }
+        
+        // --- 14. Core Logic Functions (Resolution Tracking) ---
+        
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            const submitButton = e.currentTarget.querySelector('button[type="submit"]');
+            
+            const checklistData = {};
+            let allAnswered = true;
+            let hasFailures = false; // Check for failures to set initial status
+            
+            DYNAMIC_SETTINGS.CHECKLIST_ITEMS.forEach(item => {
+                const status = document.querySelector(`input[name="${item.key}_status"]:checked`);
+                if (status) {
+                    const passed = status.value === 'pass';
+                    checklistData[item.key] = passed;
+                    if (!passed) hasFailures = true;
+                } else {
+                    allAnswered = false;
+                }
+            });
+
+            if (!allAnswered) {
+                await showCustomModal('alertTitle', currentLang === 'th' ? 'กรุณาประเมินให้ครบทุกหัวข้อ' : 'Please evaluate all checklist items.');
+                return;
+            }
+
+            submitButton.disabled = true;
+            submitButton.textContent = currentLang === 'th' ? 'กำลังบันทึก...' : 'Submitting...';
+            
+            const data = {
+                supervisorName: form.supervisorName.value,
+                yearLevel: form.yearLevel.value,
+                classroom: form.classroom.value,
+                inspectionTimestamp: Timestamp.fromDate(new Date()),
+                checklist: checklistData,
+                comment: commentInput.value.trim(), 
+                // Set resolution status based on inspection result
+                resolutionStatus: hasFailures ? 'Pending' : 'Resolved', 
+                createdAt: serverTimestamp()
+            };
+
+            try {
+                await addDoc(collection(db, "inspections"), data);
+                form.reset();
+                supervisorNameSelect.selectedIndex = 0;
+                commentInput.value = ''; // Clear comment field
+            } catch (error) {
+                console.error("Error adding document:", error);
+                await showCustomModal('alertTitle', "Error: " + error.message);
+            } finally {
+                submitButton.disabled = false;
+                setLanguage(currentLang);
+            }
+        }
+        
+        function handleReportAction(e) {
+            const editButton = e.target.closest('.edit-btn');
+            const deleteButton = e.target.closest('.delete-btn');
+            const resolveButton = e.target.closest('.resolve-btn'); // NEW
+
+            if (editButton) {
+                const docId = editButton.dataset.id;
+                openEditModal(docId);
+            } else if (deleteButton) {
+                const docId = deleteButton.dataset.id;
+                handleDeleteInspection(docId);
+            } else if (resolveButton) { // NEW
+                const docId = resolveButton.dataset.id;
+                handleResolveInspection(docId);
+            }
+        }
+
+        async function handleDeleteInspection(docId) {
+            const confirmed = await showCustomModal('confirmTitle', translations[currentLang].deleteConfirm, true);
+            if (!confirmed) {
+                return;
+            }
+
+            try {
+                const docRef = doc(db, "inspections", docId);
+                await deleteDoc(docRef); 
+                await showCustomModal('alertTitle', translations[currentLang].deleteSuccess);
+            } catch (error) {
+                console.error(translations[currentLang].deleteError, error);
+                await showCustomModal('alertTitle', `${translations[currentLang].deleteError} ${error.message}`);
+            }
+        }
+        
+        async function handleResolveInspection(docId) {
+            const confirmMessage = currentLang === 'th' ? 'ยืนยันว่าปัญหาที่ตรวจพบได้รับการแก้ไขเรียบร้อยแล้ว?' : 'Confirm that the reported issues have been resolved?';
+            
+            const confirmed = await showCustomModal('confirmTitle', confirmMessage, true);
+            if (!confirmed) return;
+
+            try {
+                const docRef = doc(db, "inspections", docId);
+                await updateDoc(docRef, { 
+                    resolutionStatus: 'Resolved',
+                    resolutionTimestamp: Timestamp.fromDate(new Date()) 
+                });
+                showCustomModal('alertTitle', currentLang === 'th' ? 'บันทึกสถานะการแก้ไขเรียบร้อยแล้ว' : 'Resolution status saved successfully.');
+            } catch (error) {
+                console.error("Error resolving document:", error);
+                showCustomModal('alertTitle', currentLang === 'th' ? 'เกิดข้อผิดพลาดในการบันทึกสถานะ: ' + error.message : 'Error saving resolution status: ' + error.message);
+            }
+        }
+
+        // --- Re-added Edit Modal Functions ---
+
+        async function openEditModal(docId) {
+            const docRef = doc(db, "inspections", docId);
+            const docSnap = await getDoc(docRef);
+            const editForm = document.getElementById('edit-inspection-form');
+            const editModal = document.getElementById('edit-modal');
+            const checklistContainer = document.getElementById('edit-checklist-container');
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                editForm['edit-doc-id'].value = docId;
+                
+                // Populate standard fields
+                editForm['edit-yearLevel'].value = data.yearLevel;
+                editForm['edit-classroom'].value = data.classroom;
+                editForm['edit-supervisorName'].value = data.supervisorName;
+                
+                checklistContainer.innerHTML = '';
+
+                // Populate dynamic checklist
+                DYNAMIC_SETTINGS.CHECKLIST_ITEMS.forEach(item => {
+                    const checkKey = item.key;
+                    // Note: If old data lacked a key, default to false (fail)
+                    const checkedStatus = data.checklist[checkKey] !== undefined ? data.checklist[checkKey] : false; 
+                    
+                    const passChecked = checkedStatus ? 'checked' : '';
+                    const failChecked = !checkedStatus ? 'checked' : '';
+                    const text = item[currentLang];
+                    const nameAttr = `edit_${checkKey}_status`;
+                    
+                    const itemHTML = `
+                        <div class="check-item-container">
+                            <p class="font-semibold text-gray-700 dark:text-gray-300 mb-2">${text}</p>
+                            <div class="flex gap-3">
+                                <input type="radio" id="edit-${checkKey}-pass" name="${nameAttr}" value="pass" required ${passChecked}>
+                                <label for="edit-${checkKey}-pass" class="flex-1 check-button pass-button" data-lang-key="passBtn">${translations[currentLang].passBtn}</label>
+                                <input type="radio" id="edit-${checkKey}-fail" name="${nameAttr}" value="fail" ${failChecked}>
+                                <label for="edit-${checkKey}-fail" class="flex-1 check-button fail-button" data-lang-key="failBtn">${translations[currentLang].failBtn}</label>
+                            </div>
+                        </div>
+                    `;
+                    checklistContainer.insertAdjacentHTML('beforeend', itemHTML);
+                });
+                
+                editModal.classList.add('visible');
+            } else {
+                console.error("No such document!");
+            }
+        }
+
+        async function handleUpdateSubmit(e) {
+            e.preventDefault();
+            const editForm = document.getElementById('edit-inspection-form');
+            const editModal = document.getElementById('edit-modal');
+            const submitButton = e.currentTarget.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = currentLang === 'th' ? 'กำลังบันทึก...' : 'Saving...';
+
+            const docId = editForm['edit-doc-id'].value;
+            const checklistData = {};
+            let allAnswered = true;
+            let hasFailures = false;
+            
+            DYNAMIC_SETTINGS.CHECKLIST_ITEMS.forEach(item => {
+                const status = document.querySelector(`input[name="edit_${item.key}_status"]:checked`);
+                 if (status) {
+                    const passed = status.value === 'pass';
+                    checklistData[item.key] = passed;
+                    if (!passed) hasFailures = true;
+                } else {
+                    allAnswered = false;
+                }
+            });
+
+            if (!allAnswered) {
+                await showCustomModal('alertTitle', currentLang === 'th' ? 'กรุณาประเมินให้ครบทุกหัวข้อ' : 'Please evaluate all checklist items.');
+                submitButton.disabled = false;
+                submitButton.textContent = translations[currentLang].saveButton;
+                return;
+            }
+
+            // Determine new resolution status based on the edited checklist
+            const newResolutionStatus = hasFailures ? 'Pending' : 'Resolved';
+            
+            const updatedData = {
+                supervisorName: editForm['edit-supervisorName'].value,
+                yearLevel: editForm['edit-yearLevel'].value,
+                classroom: editForm['edit-classroom'].value,
+                checklist: checklistData,
+                resolutionStatus: newResolutionStatus,
+            };
+
+            try {
+                const docRef = doc(db, "inspections", docId);
+                await updateDoc(docRef, updatedData);
+                editModal.classList.remove('visible');
+            } catch (error) {
+                console.error("Error updating document:", error);
+                await showCustomModal('alertTitle', "Error: " + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = translations[currentLang].saveButton;
+            }
+        }
+
+        // --- 15. Analytics Functions ---
+        
+        function setupAnalyticsControls() {
+            const monthSelect = document.getElementById('analytics-month');
+            const yearSelect = document.getElementById('analytics-year');
+            const now = new Date();
+            const currentYear = now.getFullYear();
+
+            // Populate months
+            monthSelect.innerHTML = '';
+            for (let i = 0; i < 12; i++) {
+                const date = new Date(currentYear, i, 1);
+                const monthName = date.toLocaleDateString(currentLang === 'th' ? 'th-TH' : 'en-US', { month: 'long' });
+                monthSelect.insertAdjacentHTML('beforeend', `<option value="${i + 1}" ${i === now.getMonth() ? 'selected' : ''}>${monthName}</option>`);
+            }
+
+            // Populate years (Current year and past 4 years)
+            yearSelect.innerHTML = '';
+            for (let y = currentYear; y >= currentYear - 4; y--) {
+                yearSelect.insertAdjacentHTML('beforeend', `<option value="${y}" ${y === currentYear ? 'selected' : ''}>${y}</option>`);
+            }
+
+            // Ensure the listener is only added once
+            document.getElementById('load-analytics-btn').removeEventListener('click', loadAnalyticsData);
+            document.getElementById('load-analytics-btn').addEventListener('click', loadAnalyticsData);
+        }
+
+
+        async function loadAnalyticsData() {
+            const month = parseInt(document.getElementById('analytics-month').value);
+            const year = parseInt(document.getElementById('analytics-year').value);
+            
+            // Calculate date range for the selected month
+            const startDate = new Date(year, month - 1, 1);
+            const endDate = new Date(year, month, 1);
+
+            const inspectionsCollection = collection(db, "inspections");
+            const q = query(inspectionsCollection, 
+                where("inspectionTimestamp", ">=", Timestamp.fromDate(startDate)),
+                where("inspectionTimestamp", "<", Timestamp.fromDate(endDate))
+            );
+            
+            // Temporary loading indicator
+            const loadBtn = document.getElementById('load-analytics-btn');
+            loadBtn.disabled = true;
+            loadBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+            noAnalyticsDataMessage.classList.add('hidden');
+
+            try {
+                const snapshot = await getDocs(q);
+                const items = snapshot.docs.map(doc => doc.data());
+                renderAnalytics(items);
+            } catch (error) {
+                console.error("Error fetching analytics data:", error);
+                showCustomModal('alertTitle', currentLang === 'th' ? 'เกิดข้อผิดพลาดในการโหลดข้อมูลวิเคราะห์' : 'Error loading analytics data.');
+            } finally {
+                loadBtn.disabled = false;
+                loadBtn.textContent = translations[currentLang].loadAnalyticsButton;
+            }
+        }
+
+        function renderAnalytics(data) {
+            const chartsContainer = document.getElementById('analytics-charts-container');
+            const hasData = data.length > 0;
+            
+            chartsContainer.classList.toggle('hidden', !hasData);
+            noAnalyticsDataMessage.classList.toggle('hidden', hasData);
+
+            if (!hasData) {
+                if (overallChart) overallChart.destroy();
+                if (failureChart) failureChart.destroy();
+                return;
+            }
+            
+            let totalPass = 0;
+            let totalFail = 0;
+            const itemFailures = {}; // { 'check1': 5, 'check2': 2, ... }
+            const itemTotalCounts = {};
+
+            // 1. Process data
+            data.forEach(item => {
+                let inspectionPassed = true;
+                
+                DYNAMIC_SETTINGS.CHECKLIST_ITEMS.forEach(checkItem => {
+                    const key = checkItem.key;
+                    // Ensure checklist property exists, and key exists within it, default to true if missing
+                    const passed = item.checklist?.[key] ?? true; 
+                    
+                    // Initialize counters
+                    itemFailures[key] = itemFailures[key] || 0;
+                    itemTotalCounts[key] = itemTotalCounts[key] || 0;
+                    
+                    itemTotalCounts[key]++;
+
+                    if (!passed) {
+                        inspectionPassed = false;
+                        itemFailures[key]++;
+                    }
+                });
+
+                if (inspectionPassed) {
+                    totalPass++;
+                } else {
+                    totalFail++;
+                }
+            });
+
+            // 2. Render Overall Ratio Chart (Doughnut)
+            if (overallChart) overallChart.destroy();
+            
+            Chart.defaults.color = '#d1d5db'; // Hardcoded dark theme text color for charts
+            
+            overallChart = new Chart(document.getElementById('overallRatioChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: [translations[currentLang].pass, translations[currentLang].fail],
+                    datasets: [{
+                        data: [totalPass, totalFail],
+                        backgroundColor: ['#22c55e', '#ef4444'], // Green, Red
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' },
+                        title: { display: false }
+                    }
+                }
+            });
+            
+            // 3. Render Failure Rate by Item Chart (Bar)
+            if (failureChart) failureChart.destroy();
+            
+            const failureRateLabels = DYNAMIC_SETTINGS.CHECKLIST_ITEMS.map(item => item[currentLang]);
+            const failureRateData = DYNAMIC_SETTINGS.CHECKLIST_ITEMS.map(item => itemFailures[item.key] || 0);
+
+            failureChart = new Chart(document.getElementById('failureRateChart'), {
+                type: 'bar',
+                data: {
+                    labels: failureRateLabels,
+                    datasets: [{
+                        label: translations[currentLang].fail,
+                        data: failureRateData,
+                        backgroundColor: 'rgba(239, 68, 68, 0.7)', // Red
+                        borderColor: 'rgb(239, 68, 68)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: translations[currentLang].count
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)' // Forced dark mode grid color
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)' // Forced dark mode grid color
+                            },
+                             ticks: {
+                                  // Truncate long labels for better bar chart display
+                                  callback: function(value, index, values) {
+                                      const label = this.getLabelForValue(value);
+                                      return label.length > 15 ? label.substring(0, 15) + '...' : label;
+                                  }
+                             }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+
+        // --- 16. Start the App ---
+        document.addEventListener('DOMContentLoaded', initializeAppCore);
+    </script>
+</body>
+</html>
