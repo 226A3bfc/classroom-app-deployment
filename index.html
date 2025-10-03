@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="th" class="dark">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,18 +19,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
     
     <style>
-        /* Base styles with transitions for smooth theme change */
+        /* Base styles for Light Mode */
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: #f7f8fc;
+            background-color: #f7f8fc; /* Light background */
+            color: #1f2937; /* Default text color (gray-900 equivalent) */
             transition: background-color 0.3s, color 0.3s;
-        }
-        /* Dark Mode Body - Applied globally via HTML class */
-        .dark {
-            color: #d1d5db; /* gray-300 */
-        }
-        .dark body {
-            background-color: #111827; /* gray-900 */
         }
 
         .form-section, .report-section, .admin-section {
@@ -38,11 +32,6 @@
             border-radius: 1rem;
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             transition: background-color 0.3s, box-shadow 0.3s;
-        }
-        /* Dark Mode Sections */
-        .dark .form-section, .dark .report-section, .dark .admin-section {
-            background-color: #1f2937; /* gray-800 */
-            box-shadow: 0 4px 6px -1px rgba(255, 255, 255, 0.1), 0 2px 4px -2px rgba(255, 255, 255, 0.06);
         }
 
         .tab-button {
@@ -76,15 +65,6 @@
             background-color: #fef2f2; /* red-50 */
             color: #dc2626; /* red-600 */
         }
-        /* Dark Mode Pass/Fail buttons - Base */
-        .dark .pass-button {
-            background-color: #10b98120;
-            color: #34d399; /* green-400 */
-        }
-        .dark .fail-button {
-            background-color: #ef444420;
-            color: #f87171; /* red-400 */
-        }
 
         /* Style for selected button */
         .check-item-container input[type="radio"]:checked + label.pass-button {
@@ -99,25 +79,13 @@
             border-color: #b91c1c; /* red-700 */
             transform: scale(1.05);
         }
-        /* Dark Mode Selected buttons */
-        .dark .check-item-container input[type="radio"]:checked + label.pass-button {
-            background-color: #10b981; /* green-600 */
-            border-color: #059669; /* green-700 */
-        }
-        .dark .check-item-container input[type="radio"]:checked + label.fail-button {
-            background-color: #ef4444; /* red-500 */
-            border-color: #dc2626; /* red-600 */
-        }
         
         .comment-display {
             border-left: 4px solid #3b82f6;
             background-color: #eff6ff;
             padding: 0.75rem;
             border-radius: 0.5rem;
-        }
-        .dark .comment-display {
-            border-left-color: #60a5fa;
-            background-color: #1e3a8a; /* blue-900 */
+            color: #1f2937; /* Ensure dark text on light comment background */
         }
 
         /* Modal Styles (General responsiveness is managed by max-width and percentage) */
@@ -154,9 +122,6 @@
         .modal-backdrop.visible .modal-content {
             transform: scale(1);
         }
-        .dark .modal-content {
-            background-color: #1f2937; /* gray-800 */
-        }
         .admin-section {
             max-width: 800px;
             margin: 1rem auto;
@@ -164,7 +129,7 @@
         }
     </style>
 </head>
-<body class="antialiased text-gray-200">
+<body class="antialiased text-gray-800 bg-gray-50">
 
     <div class="max-w-4xl mx-auto p-4 md:p-6">
         
@@ -173,8 +138,8 @@
                 <!-- เพิ่มไอคอนผู้ดูแล -->
                 <i class="fas fa-chalkboard-teacher text-blue-600 text-3xl mr-3"></i>
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white" data-lang-key="appTitle">ระบบตรวจความเรียบร้อย</h1>
-                    <p class="text-gray-500 dark:text-gray-400 mt-1" data-lang-key="appSubtitle">สำหรับหัวหน้างาน</p>
+                    <h1 class="text-2xl md:text-3xl font-bold text-gray-800" data-lang-key="appTitle">ระบบตรวจความเรียบร้อย</h1>
+                    <p class="text-gray-500 mt-1" data-lang-key="appSubtitle">สำหรับหัวหน้างาน</p>
                 </div>
             </div>
             <div class="flex space-x-2">
@@ -182,7 +147,7 @@
                 <button id="admin-mode-toggle" class="bg-yellow-500 text-white rounded-lg px-4 py-2 font-semibold hover:bg-yellow-600 transition shadow-sm text-sm" data-lang-key="adminButton">
                     <i class="fas fa-tools mr-1"></i> Admin
                 </button>
-                <button id="lang-toggle" class="bg-white border border-gray-300 rounded-lg px-4 py-2 font-semibold text-gray-700 hover:bg-gray-100 transition shadow-sm text-sm dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600">
+                <button id="lang-toggle" class="bg-white border border-gray-300 rounded-lg px-4 py-2 font-semibold text-gray-700 hover:bg-gray-100 transition shadow-sm text-sm">
                     EN / TH
                 </button>
             </div>
@@ -190,17 +155,17 @@
 
         <!-- ADMIN MANAGEMENT SECTION (Initially hidden) -->
         <div id="admin-panel" class="hidden admin-section form-section p-6 mb-8">
-            <h2 class="text-xl font-bold text-gray-700 dark:text-gray-100 mb-4" data-lang-key="adminPanelTitle">แผงควบคุมผู้ดูแล</h2>
+            <h2 class="text-xl font-bold text-gray-800 mb-4" data-lang-key="adminPanelTitle">แผงควบคุมผู้ดูแล</h2>
             
             <div class="space-y-6">
                 <!-- Supervisor Management -->
-                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
-                    <h3 class="text-lg font-semibold mb-3 dark:text-gray-100" data-lang-key="manageSupervisorsTitle">จัดการผู้ตรวจ (Supervisor)</h3>
+                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-800" data-lang-key="manageSupervisorsTitle">จัดการผู้ตรวจ (Supervisor)</h3>
                     <div id="supervisor-list-container" class="space-y-2 mb-4">
                         <!-- Supervisor List will be rendered here -->
                     </div>
                     <form id="add-supervisor-form" class="flex gap-2">
-                        <input type="text" id="new-supervisor-name" required placeholder="ชื่อผู้ตรวจใหม่" class="flex-1 p-2 border border-gray-300 rounded-lg dark:bg-gray-800 dark:border-gray-600 dark:text-white">
+                        <input type="text" id="new-supervisor-name" required placeholder="ชื่อผู้ตรวจใหม่" class="flex-1 p-2 border border-gray-300 rounded-lg">
                         <button type="submit" class="bg-green-600 text-white p-2 rounded-lg font-semibold hover:bg-green-700 transition" data-lang-key="addSupervisorButton">
                             เพิ่ม
                         </button>
@@ -208,36 +173,41 @@
                 </div>
 
                 <!-- Checklist Management -->
-                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
-                    <h3 class="text-lg font-semibold mb-3 dark:text-gray-100" data-lang-key="manageChecklistTitle">จัดการหัวข้อการตรวจ (Checklist)</h3>
+                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-800" data-lang-key="manageChecklistTitle">จัดการหัวข้อการตรวจ (Checklist)</h3>
                     <div id="checklist-admin-container" class="space-y-3">
                         <!-- Checklist Items will be rendered here -->
                     </div>
+                    <!-- NEW: Add Item Button -->
+                    <button id="add-checklist-item-button" class="mt-4 w-full bg-yellow-500 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-yellow-600 transition" data-lang-key="addChecklistItemButton">
+                        + เพิ่มหัวข้อใหม่
+                    </button>
+                    <!-- END NEW -->
                     <button id="save-checklist-button" class="mt-4 w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition" data-lang-key="saveChecklistButton">
                         บันทึกรายการตรวจ
                     </button>
                 </div>
 
                 <!-- Analytics / Dashboard Section -->
-                <hr class="my-6 border-gray-300 dark:border-gray-600">
-                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-700 dark:border-gray-600">
-                    <h3 class="text-lg font-semibold mb-3 dark:text-gray-100" data-lang-key="analyticsTitle">รายงานสรุปผลการวิเคราะห์</h3>
+                <hr class="my-6 border-gray-300">
+                <div class="p-4 border border-gray-200 rounded-lg bg-gray-50">
+                    <h3 class="text-lg font-semibold mb-3 text-gray-800" data-lang-key="analyticsTitle">รายงานสรุปผลการวิเคราะห์</h3>
                     <div id="analytics-time-frame" class="flex flex-col sm:flex-row gap-2 mb-4">
-                        <select id="analytics-month" class="p-2 border rounded-lg flex-1 dark:bg-gray-800 dark:border-gray-600 dark:text-white"></select>
-                        <select id="analytics-year" class="p-2 border rounded-lg flex-1 dark:bg-gray-800 dark:border-gray-600 dark:text-white"></select>
+                        <select id="analytics-month" class="p-2 border rounded-lg flex-1"></select>
+                        <select id="analytics-year" class="p-2 border rounded-lg flex-1"></select>
                         <button id="load-analytics-btn" class="bg-blue-600 text-white p-2 rounded-lg font-semibold hover:bg-blue-700 transition" data-lang-key="loadAnalyticsButton">
                             โหลดข้อมูล
                         </button>
                     </div>
                     <div id="analytics-charts-container" class="space-y-4">
-                        <p id="no-analytics-data" class="hidden text-center text-gray-500 py-6 dark:text-gray-400" data-lang-key="noAnalyticsData">ไม่มีข้อมูลการตรวจในช่วงเวลาที่เลือก</p>
+                        <p id="no-analytics-data" class="hidden text-center text-gray-500 py-6" data-lang-key="noAnalyticsData">ไม่มีข้อมูลการตรวจในช่วงเวลาที่เลือก</p>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="bg-white p-3 rounded-lg shadow-inner dark:bg-gray-800">
-                                <p class="font-semibold text-sm mb-2 dark:text-gray-100" data-lang-key="chartOverallTitle">อัตราส่วนภาพรวม (ผ่าน/ไม่ผ่าน)</p>
+                            <div class="bg-white p-3 rounded-lg shadow-inner">
+                                <p class="font-semibold text-sm mb-2 text-gray-800" data-lang-key="chartOverallTitle">อัตราส่วนภาพรวม (ผ่าน/ไม่ผ่าน)</p>
                                 <canvas id="overallRatioChart"></canvas>
                             </div>
-                            <div class="bg-white p-3 rounded-lg shadow-inner dark:bg-gray-800">
-                                <p class="font-semibold text-sm mb-2 dark:text-gray-100" data-lang-key="chartFailureRateTitle">อัตราการไม่ผ่านตามรายการตรวจ</p>
+                            <div class="bg-white p-3 rounded-lg shadow-inner">
+                                <p class="font-semibold text-sm mb-2 text-gray-800" data-lang-key="chartFailureRateTitle">อัตราการไม่ผ่านตามรายการตรวจ</p>
                                 <canvas id="failureRateChart"></canvas>
                             </div>
                         </div>
@@ -255,29 +225,29 @@
 
         <!-- FORM SECTION -->
         <div id="form-section" class="form-section p-6 mb-8">
-            <h2 class="text-xl font-semibold mb-5 text-gray-700 dark:text-gray-100" data-lang-key="formTitle">บันทึกการตรวจ</h2>
+            <h2 class="text-xl font-semibold mb-5 text-gray-700" data-lang-key="formTitle">บันทึกการตรวจ</h2>
             <form id="inspection-form">
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                        <label for="yearLevel" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="yearLevelLabel">ระดับชั้น</label>
-                        <select id="yearLevel" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></select>
+                        <label for="yearLevel" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="yearLevelLabel">ระดับชั้น</label>
+                        <select id="yearLevel" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
                     </div>
                     <div>
-                        <label for="classroom" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="classroomLabel">ห้อง</label>
-                        <select id="classroom" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <label for="classroom" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="classroomLabel">ห้อง</label>
+                        <select id="classroom" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
                             <option value="A">A</option> <option value="B">B</option>
                         </select>
                     </div>
                      <div>
-                        <label for="supervisorName" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="supervisorLabel">ผู้ตรวจ</label>
-                        <select id="supervisorName" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></select>
+                        <label for="supervisorName" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="supervisorLabel">ผู้ตรวจ</label>
+                        <select id="supervisorName" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
                     </div>
                 </div>
 
-                <hr class="my-6 border-gray-300 dark:border-gray-700">
+                <hr class="my-6 border-gray-300">
 
                 <div>
-                     <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-100 mb-3" data-lang-key="checklistTitle">หัวข้อการตรวจ</h3>
+                     <h3 class="text-lg font-semibold text-gray-700 mb-3" data-lang-key="checklistTitle">หัวข้อการตรวจ</h3>
                      <div id="checklist-form-container" class="space-y-5">
                         <!-- Dynamic Checklist Items will be rendered here -->
                      </div>
@@ -285,8 +255,8 @@
 
                 <!-- Comment Section -->
                 <div class="mt-6">
-                    <label for="comment" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="commentLabel">คอมเมนต์เพิ่มเติม</label>
-                    <textarea id="comment" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="บันทึกข้อเสนอแนะหรือรายละเอียดเพิ่มเติม"></textarea>
+                    <label for="comment" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="commentLabel">คอมเมนต์เพิ่มเติม</label>
+                    <textarea id="comment" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="บันทึกข้อเสนอแนะหรือรายละเอียดเพิ่มเติม"></textarea>
                 </div>
 
                 <div class="mt-8">
@@ -299,15 +269,15 @@
 
         <!-- REPORT SECTION -->
         <div id="report-section" class="report-section p-6">
-            <h2 class="text-xl font-semibold mb-5 text-gray-700 dark:text-gray-100" data-lang-key="reportTitle">รายงานผลการตรวจ</h2>
+            <h2 class="text-xl font-semibold mb-5 text-gray-700" data-lang-key="reportTitle">รายงานผลการตรวจ</h2>
 
             <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-5">
-                <div class="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg w-full md:w-auto">
+                <div class="flex bg-gray-100 p-1 rounded-lg w-full md:w-auto">
                     <button id="daily-tab" class="tab-button active flex-1 md:flex-none px-6 py-2 rounded-md font-semibold" data-lang-key="dailyReport">รายวัน</button>
                     <button id="weekly-tab" class="tab-button flex-1 md:flex-none px-6 py-2 rounded-md font-semibold" data-lang-key="weeklyReport">รายสัปดาห์</button>
                 </div>
                 <div class="flex space-x-2 w-full md:w-auto">
-                    <input type="date" id="reportDate" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 w-full md:w-auto dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <input type="date" id="reportDate" class="p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 w-full md:w-auto">
                     <button id="download-pdf-btn" class="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition shadow-sm text-sm flex-shrink-0" data-lang-key="downloadPDF">
                         <i class="fas fa-file-pdf"></i>
                     </button>
@@ -317,8 +287,8 @@
             <!-- Report Container - Target for PDF Generation -->
             <div id="pdf-target-container">
                  <div id="report-container" class="space-y-3">
-                     <div id="loader" class="text-center py-10 text-gray-500 dark:text-gray-400" data-lang-key="loading">กำลังโหลดข้อมูล...</div>
-                     <p id="no-items-message" class="hidden text-center text-gray-500 py-10 dark:text-gray-400" data-lang-key="noData">ไม่มีข้อมูลในวันที่เลือก</p>
+                    <div id="loader" class="text-center py-10 text-gray-500" data-lang-key="loading">กำลังโหลดข้อมูล...</div>
+                    <p id="no-items-message" class="hidden text-center text-gray-500 py-10" data-lang-key="noData">ไม่มีข้อมูลในวันที่เลือก</p>
                  </div>
             </div>
         </div>
@@ -327,10 +297,10 @@
     <!-- GENERIC CONFIRMATION/ALERT MODAL (Replaces alert() and confirm()) -->
     <div id="confirm-modal" class="modal-backdrop">
         <div class="modal-content">
-            <h2 id="modal-title" class="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-100"></h2>
-            <p id="modal-message" class="mb-6 text-gray-600 dark:text-gray-300"></p>
+            <h2 id="modal-title" class="text-xl font-semibold mb-4 text-gray-700"></h2>
+            <p id="modal-message" class="mb-6 text-gray-600"></p>
             <div class="flex gap-4 justify-end">
-                <button type="button" id="modal-cancel" class="bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500" data-lang-key="cancelButton"></button>
+                <button type="button" id="modal-cancel" class="bg-gray-200 text-gray-700 font-bold py-2 px-4 rounded-lg hover:bg-gray-300 transition" data-lang-key="cancelButton"></button>
                 <button type="button" id="modal-confirm" class="bg-red-600 text-white font-bold py-2 px-4 rounded-lg shadow-md hover:bg-red-700 transition"></button>
             </div>
         </div>
@@ -339,32 +309,32 @@
     <!-- EDIT MODAL (Re-added for editing functionality) -->
     <div id="edit-modal" class="modal-backdrop">
         <div class="modal-content">
-            <h2 class="text-xl font-semibold mb-5 text-gray-700 dark:text-gray-100" data-lang-key="editTitle">แก้ไขการตรวจ</h2>
+            <h2 class="text-xl font-semibold mb-5 text-gray-700" data-lang-key="editTitle">แก้ไขการตรวจ</h2>
             <form id="edit-inspection-form">
                 <input type="hidden" id="edit-doc-id">
                 <div class="space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                         <div>
-                            <label for="edit-yearLevel" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="yearLevelLabel">ระดับชั้น</label>
-                            <select id="edit-yearLevel" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></select>
+                          <div>
+                            <label for="edit-yearLevel" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="yearLevelLabel">ระดับชั้น</label>
+                            <select id="edit-yearLevel" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
                         </div>
                         <div>
-                            <label for="edit-classroom" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="classroomLabel">ห้อง</label>
-                            <select id="edit-classroom" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"><option value="A">A</option><option value="B">B</option></select>
+                            <label for="edit-classroom" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="classroomLabel">ห้อง</label>
+                            <select id="edit-classroom" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"><option value="A">A</option><option value="B">B</option></select>
                         </div>
                          <div>
-                            <label for="edit-supervisorName" class="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1" data-lang-key="supervisorLabel">ผู้ตรวจ</label>
-                            <select id="edit-supervisorName" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></select>
+                            <label for="edit-supervisorName" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="supervisorLabel">ผู้ตรวจ</label>
+                            <select id="edit-supervisorName" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></select>
                         </div>
                     </div>
-                    <hr class="border-gray-300 dark:border-gray-700">
+                    <hr class="border-gray-300">
                     <div>
-                         <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-100 mb-3" data-lang-key="checklistTitle">หัวข้อการตรวจ</h3>
+                         <h3 class="text-lg font-semibold text-gray-700 mb-3" data-lang-key="checklistTitle">หัวข้อการตรวจ</h3>
                          <div id="edit-checklist-container" class="space-y-5"></div>
                     </div>
                     
                     <div class="flex gap-4 mt-6">
-                        <button type="button" id="cancel-edit" class="w-full bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition dark:bg-gray-600 dark:text-white dark:hover:bg-gray-500" data-lang-key="cancelButton">ยกเลิก</button>
+                        <button type="button" id="cancel-edit" class="w-full bg-gray-200 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-300 transition" data-lang-key="cancelButton">ยกเลิก</button>
                         <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition" data-lang-key="saveButton">บันทึกการเปลี่ยนแปลง</button>
                     </div>
                 </div>
@@ -404,13 +374,12 @@
             ]
         };
         let currentLang = 'th';
-        let currentTheme = 'dark'; // FORCED DARK MODE
+        let currentTheme = 'light'; // DEFAULT TO LIGHT MODE
         let unsubscribeSettings; // สำหรับยกเลิกการติดตามการตั้งค่า
         let overallChart, failureChart; // Chart.js instances
 
         const translations = {
             en: {
-                // ... (existing translations)
                 pageTitle: "Classroom Inspection App",
                 appTitle: "Classroom Inspection",
                 appSubtitle: "For Supervisors",
@@ -468,9 +437,11 @@
                 loadAnalyticsButton: "Load Data",
                 count: "Count",
                 noAnalyticsData: "No inspection data available for the selected period.",
+                // NEW Checklist Admin Translations
+                addChecklistItemButton: "+ Add New Item", 
+                deleteChecklistItemConfirm: "Delete this checklist item? Changes will be permanent after saving the checklist.",
             },
             th: {
-                // ... (existing translations)
                 pageTitle: "ระบบตรวจความเรียบร้อยห้องเรียน",
                 appTitle: "ระบบตรวจความเรียบร้อย",
                 appSubtitle: "สำหรับหัวหน้างาน",
@@ -528,6 +499,9 @@
                 loadAnalyticsButton: "โหลดข้อมูล",
                 count: "จำนวน",
                 noAnalyticsData: "ไม่มีข้อมูลการตรวจในช่วงเวลาที่เลือก",
+                // NEW Checklist Admin Translations
+                addChecklistItemButton: "+ เพิ่มหัวข้อใหม่", 
+                deleteChecklistItemConfirm: "ลบหัวข้อการตรวจนี้หรือไม่? การเปลี่ยนแปลงจะมีผลถาวรเมื่อบันทึกรายการตรวจแล้ว",
             }
         };
 
@@ -564,8 +538,8 @@
         const addSupervisorForm = document.getElementById('add-supervisor-form');
         const checklistAdminContainer = document.getElementById('checklist-admin-container');
         const saveChecklistButton = document.getElementById('save-checklist-button');
+        const addChecklistItemButton = document.getElementById('add-checklist-item-button'); // NEW
         const noAnalyticsDataMessage = document.getElementById('no-analytics-data');
-        // Removed: const themeToggle = document.getElementById('theme-toggle');
 
         // Modal Elements (Generic Alert/Confirm)
         const confirmModal = document.getElementById('confirm-modal');
@@ -575,12 +549,11 @@
         const modalConfirm = document.getElementById('modal-confirm');
 
 
-        // --- 5. Theme/Dark Mode Logic (Removed toggling logic, forced dark) ---
+        // --- 5. Theme Logic (Simplified to only manage state) ---
         
         function applyTheme(theme) {
-            // No action needed as theme is forced via HTML class="dark"
-            // Keeping currentTheme variable updated for chart rendering consistency
-            currentTheme = 'dark'; 
+            currentTheme = theme;
+            // No direct DOM manipulation needed since we removed the .dark CSS selectors
         }
 
         // --- 6. Custom Modal (Replaces alert/confirm) ---
@@ -633,10 +606,10 @@
                      
                      // 1. จัดการ Supervisor
                      if (Array.isArray(data.supervisors) && data.supervisors.length > 0) {
-                        DYNAMIC_SETTINGS.SUPERVISOR_NAMES = data.supervisors;
+                         DYNAMIC_SETTINGS.SUPERVISOR_NAMES = data.supervisors;
                      } else {
-                        // ถ้าไม่มีข้อมูลใน Firestore ให้ใช้ค่าเริ่มต้นและบันทึกกลับไป
-                        setDoc(settingsRef, { supervisors: DYNAMIC_SETTINGS.SUPERVISOR_NAMES }, { merge: true });
+                         // ถ้าไม่มีข้อมูลใน Firestore ให้ใช้ค่าเริ่มต้นและบันทึกกลับไป
+                         setDoc(settingsRef, { supervisors: DYNAMIC_SETTINGS.SUPERVISOR_NAMES }, { merge: true });
                      }
 
                      // 2. จัดการ Checklist
@@ -644,7 +617,7 @@
                          DYNAMIC_SETTINGS.CHECKLIST_ITEMS = data.checklist;
                      } else {
                          // ถ้าไม่มีข้อมูลใน Firestore ให้ใช้ค่าเริ่มต้นและบันทึกกลับไป
-                        setDoc(settingsRef, { checklist: DYNAMIC_SETTINGS.CHECKLIST_ITEMS }, { merge: true });
+                         setDoc(settingsRef, { checklist: DYNAMIC_SETTINGS.CHECKLIST_ITEMS }, { merge: true });
                      }
                  } else {
                      // สร้างเอกสารเริ่มต้นถ้ายังไม่มี
@@ -716,7 +689,7 @@
                 
                 const itemHTML = `
                     <div class="check-item-container">
-                        <p class="font-semibold text-gray-700 dark:text-gray-300 mb-2">${text}</p>
+                        <p class="font-semibold text-gray-700 mb-2">${text}</p>
                         <div class="flex gap-3">
                             <input type="radio" id="${prefix}${checkKey}-pass" name="${prefix}${checkKey}_status" value="pass" required>
                             <label for="${prefix}${checkKey}-pass" class="flex-1 check-button pass-button" data-lang-key="passBtn">${translations[currentLang].passBtn}</label>
@@ -742,7 +715,7 @@
 
             items.forEach(item => {
                 const card = document.createElement('div');
-                card.className = "bg-white p-4 rounded-lg border border-gray-200 dark:bg-gray-800 dark:border-gray-700";
+                card.className = "bg-white p-4 rounded-lg border border-gray-200";
 
                 const inspectionDate = item.inspectionTimestamp.toDate();
                 const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -769,13 +742,12 @@
                     
                     const text = checkItem[currentLang];
                     const statusText = passed ? translations[currentLang].pass : translations[currentLang].fail;
-                    const colorClass = passed ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400';
+                    const colorClass = passed ? 'text-green-600' : 'text-red-600';
                     const icon = passed 
                         ? `<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`
                         : `<svg class="w-5 h-5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
                     
-                    // Dark Mode background for checklist items
-                    const bgClass = passed ? 'bg-green-50 dark:bg-green-900/30' : 'bg-red-50 dark:bg-red-900/30';
+                    const bgClass = passed ? 'bg-green-50' : 'bg-red-50';
 
                     checklistHTML += `<li class="flex items-center justify-between p-2 rounded-md ${bgClass}"><div class="flex items-center"><span class="${colorClass}">${icon}</span><span>${text}</span></div><span class="font-semibold ${colorClass}">${statusText}</span></li>`;
                 });
@@ -790,10 +762,10 @@
 
                 if (currentResolutionStatus === 'Resolved') {
                     statusText = translations[currentLang].resolutionResolved;
-                    statusClass = 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100';
+                    statusClass = 'bg-green-100 text-green-800';
                 } else if (currentResolutionStatus === 'Pending' && hasFailures) {
                     statusText = translations[currentLang].resolutionPending;
-                    statusClass = 'bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100';
+                    statusClass = 'bg-red-100 text-red-800';
                     resolveButtonHTML = `<button class="resolve-btn bg-green-500 hover:bg-green-600 text-white font-semibold py-1 px-3 rounded-lg text-xs transition" data-id="${item.id}" data-lang-key="resolveButton">${translations[currentLang].resolveButton}</button>`;
                 }
                 
@@ -806,13 +778,13 @@
                 if (commentContent) {
                     commentHTML = `
                         <div class="mt-4 comment-display">
-                            <p class="text-sm font-semibold text-blue-700 dark:text-blue-400 mb-1" data-lang-key="commentTitle">${translations[currentLang].commentTitle}:</p>
-                            <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">${commentContent}</p>
+                            <p class="text-sm font-semibold text-blue-700 mb-1" data-lang-key="commentTitle">${translations[currentLang].commentTitle}:</p>
+                            <p class="text-sm text-gray-700 whitespace-pre-wrap">${commentContent}</p>
                         </div>
                     `;
                 } else {
                     commentHTML = `
-                         <div class="mt-4 text-sm text-gray-500 dark:text-gray-400">${translations[currentLang].noComment}</div>
+                        <div class="mt-4 text-sm text-gray-500">${translations[currentLang].noComment}</div>
                     `;
                 }
 
@@ -820,12 +792,12 @@
                 card.innerHTML = `
                     <div class="flex justify-between items-start">
                         <div>
-                            <div class="font-bold text-lg text-blue-700 dark:text-blue-400">${item.yearLevel} / ${item.classroom}</div>
-                            <div class="text-sm text-gray-600 dark:text-gray-400 mt-1">${translations[currentLang].by} <span class="font-semibold">${item.supervisorName}</span></div>
+                            <div class="font-bold text-lg text-blue-700">${item.yearLevel} / ${item.classroom}</div>
+                            <div class="text-sm text-gray-600 mt-1">${translations[currentLang].by} <span class="font-semibold">${item.supervisorName}</span></div>
                         </div>
                         <div class="text-right flex-shrink-0 ml-4">
-                            <div class="text-sm text-gray-500 dark:text-gray-400">${dateString}</div>
-                            <div class="text-sm font-semibold text-gray-700 dark:text-gray-200">${timeString} น.</div>
+                            <div class="text-sm text-gray-500">${dateString}</div>
+                            <div class="text-sm font-semibold text-gray-700">${timeString} น.</div>
                         </div>
                     </div>
                     ${checklistHTML}
@@ -834,8 +806,8 @@
                         <div>${statusBadge}</div>
                         <div class="flex gap-3">
                             ${resolveButtonHTML}
-                            <button class="edit-btn bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg text-sm transition dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600" data-id="${item.id}" data-lang-key="editBtn">${translations[currentLang].editBtn}</button>
-                            <button class="delete-btn bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg text-sm transition dark:bg-red-900/30 dark:text-red-400 dark:hover:bg-red-900/50" data-id="${item.id}" data-lang-key="deleteBtn">${translations[currentLang].deleteBtn}</button>
+                            <button class="edit-btn bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg text-sm transition" data-id="${item.id}" data-lang-key="editBtn">${translations[currentLang].editBtn}</button>
+                            <button class="delete-btn bg-red-100 hover:bg-red-200 text-red-700 font-semibold py-2 px-4 rounded-lg text-sm transition" data-id="${item.id}" data-lang-key="deleteBtn">${translations[currentLang].deleteBtn}</button>
                         </div>
                     </div>
                 `;
@@ -931,12 +903,11 @@
             
             loadSettings(); // เริ่มโหลดการตั้งค่า
             setupAnalyticsControls(); // Initial setup of analytics controls
-            applyTheme('dark'); // Apply dark theme immediately and permanently
+            applyTheme('light'); // Apply light theme default
             setLanguage(currentLang); // This calls fetchAndRenderInspections
             
             // Event Listeners
             langToggle.addEventListener('click', () => setLanguage(currentLang === 'th' ? 'en' : 'th'));
-            // Removed: themeToggle.addEventListener('click', toggleTheme); 
             form.addEventListener('submit', handleFormSubmit);
             dailyTab.addEventListener('click', () => switchTab('daily'));
             weeklyTab.addEventListener('click', () => switchTab('weekly'));
@@ -959,6 +930,10 @@
             addSupervisorForm.addEventListener('submit', handleAddSupervisor);
             supervisorListContainer.addEventListener('click', handleSupervisorAction);
             saveChecklistButton.addEventListener('click', handleSaveChecklist);
+            
+            // NEW Checklist Admin Listeners
+            addChecklistItemButton.addEventListener('click', addNewChecklistItem);
+            checklistAdminContainer.addEventListener('click', handleChecklistAdminAction);
         }
         
         // --- 12. Admin Mode Logic ---
@@ -1014,8 +989,8 @@
 
         function renderSupervisorAdmin() {
             supervisorListContainer.innerHTML = DYNAMIC_SETTINGS.SUPERVISOR_NAMES.map(name => `
-                <div class="flex justify-between items-center bg-white p-2 border rounded-lg dark:bg-gray-800 dark:border-gray-600">
-                    <span class="dark:text-gray-200">${name}</span>
+                <div class="flex justify-between items-center bg-white p-2 border rounded-lg">
+                    <span class="text-gray-800">${name}</span>
                     <button class="delete-supervisor-btn text-red-600 hover:text-red-800 transition text-sm px-2" data-name="${name}">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -1023,45 +998,126 @@
             `).join('');
         }
 
-        function renderChecklistAdmin() {
-            checklistAdminContainer.innerHTML = DYNAMIC_SETTINGS.CHECKLIST_ITEMS.map((item, index) => `
-                <div class="p-3 border rounded-lg bg-white space-y-2 dark:bg-gray-800 dark:border-gray-600">
-                    <p class="font-medium dark:text-gray-100">${item.th}</p>
-                    <input type="text" data-index="${index}" data-lang="th" value="${item.th}" placeholder="${translations[currentLang].checklistItemTH}" class="w-full p-2 border rounded-lg text-sm mb-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <input type="text" data-index="${index}" data-lang="en" value="${item.en}" placeholder="${translations[currentLang].checklistItemEN}" class="w-full p-2 border rounded-lg text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        // NEW HELPER: Renders an editable checklist item in the admin panel
+        function renderChecklistItemAdmin(container, item, index) {
+            // Use a unique ID for the item container (needed for live DOM removal)
+            const uniqueId = `admin-item-${item.key || Date.now()}-${index}`; 
+            
+            const itemHTML = `
+                <div id="${uniqueId}" class="checklist-admin-item p-3 border rounded-lg bg-white space-y-2 relative shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <p class="font-medium text-gray-800">${item.th || translations[currentLang].addChecklistItemButton.replace('+', '').trim()}</p>
+                        <button type="button" class="delete-checklist-item-btn text-red-600 hover:text-red-800 transition text-sm p-1 leading-none" data-id="${uniqueId}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <label class="block text-xs font-semibold text-gray-500 mt-2">${translations[currentLang].checklistItemTH}</label>
+                    <input type="text" data-lang="th" value="${item.th || ''}" placeholder="${translations[currentLang].checklistItemTH}" class="w-full p-2 border border-gray-300 rounded-lg text-sm mb-1 focus:ring-blue-500 focus:border-blue-500">
+                    <label class="block text-xs font-semibold text-gray-500">${translations[currentLang].checklistItemEN}</label>
+                    <input type="text" data-lang="en" value="${item.en || ''}" placeholder="${translations[currentLang].checklistItemEN}" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500">
                 </div>
-            `).join('');
+            `;
+            container.insertAdjacentHTML('beforeend', itemHTML);
         }
 
-        async function handleSaveChecklist() {
-            const checklistInputs = checklistAdminContainer.querySelectorAll('input[type="text"]');
-            const newChecklist = [];
-            const tempItems = {}; // ใช้พักข้อมูลเพื่อจัดกลุ่มตาม index
-
-            checklistInputs.forEach(input => {
-                const index = parseInt(input.dataset.index);
-                const lang = input.dataset.lang;
-                const value = input.value.trim();
-
-                if (!tempItems[index]) {
-                    tempItems[index] = { key: `check${index + 1}` };
-                }
-                tempItems[index][lang] = value;
+        // UPDATED: Renders all checklist items from DYNAMIC_SETTINGS
+        function renderChecklistAdmin() {
+            const container = checklistAdminContainer;
+            container.innerHTML = '';
+            
+            DYNAMIC_SETTINGS.CHECKLIST_ITEMS.forEach((item, index) => {
+                renderChecklistItemAdmin(container, item, index);
             });
+        }
+        
+        // NEW: Adds an empty item row to the UI
+        function addNewChecklistItem() {
+            const container = checklistAdminContainer;
+            // Create a temporary item object (key is empty as it will be re-indexed on save)
+            const tempItem = { key: '', th: '', en: '' }; 
+            // The index is arbitrary, used only for the unique DOM ID
+            renderChecklistItemAdmin(container, tempItem, Date.now()); 
+        }
 
-            // แปลงกลับเป็น Array และกรองรายการที่ไม่สมบูรณ์ (ถ้ามี)
-            for (const key in tempItems) {
-                if (tempItems[key].th && tempItems[key].en) {
-                    newChecklist.push(tempItems[key]);
+        // NEW: Handles the deletion of a checklist item from the DOM
+        async function handleChecklistAdminAction(e) {
+            const deleteBtn = e.target.closest('.delete-checklist-item-btn');
+            if (deleteBtn) {
+                const itemId = deleteBtn.dataset.id;
+                const itemElement = document.getElementById(itemId);
+
+                // Use the deleteConfirm message specific to checklist items
+                const confirmed = await showCustomModal(
+                    'confirmTitle', 
+                    translations[currentLang].deleteChecklistItemConfirm, 
+                    true
+                );
+
+                if (confirmed) {
+                    if (itemElement) {
+                        itemElement.remove();
+                        // Note: Actual deletion from Firestore happens only on Save Checklist click
+                    }
                 }
             }
+        }
 
-            if (newChecklist.length === 0) {
+        // UPDATED: Handles saving the entire checklist (including adds/deletes)
+        async function handleSaveChecklist() {
+            const checklistItems = checklistAdminContainer.querySelectorAll('.checklist-admin-item');
+            const newChecklist = [];
+            
+            let isValid = true;
+            checklistItems.forEach(itemElement => {
+                 // Reset highlight
+                 itemElement.style.border = '1px solid #e5e7eb'; // gray-200 equivalent
+
+                const thInput = itemElement.querySelector('input[data-lang="th"]');
+                const enInput = itemElement.querySelector('input[data-lang="en"]');
+                
+                const thValue = thInput.value.trim();
+                const enValue = enInput.value.trim();
+
+                // Validation: if one field is provided, the other must be too
+                if (thValue && !enValue) {
+                    isValid = false;
+                    itemElement.style.border = '2px solid #ef4444'; // Red highlight
+                } else if (!thValue && enValue) {
+                    isValid = false;
+                    itemElement.style.border = '2px solid #ef4444'; // Red highlight
+                }
+                
+                // If both are present, add to new list
+                if (thValue && enValue) {
+                    newChecklist.push({
+                        // Re-key sequentially based on final list order (index + 1)
+                        // The actual key will be assigned right before saving
+                        th: thValue,
+                        en: enValue
+                    });
+                }
+                // If both are empty, ignore (considered a virtual deletion of an empty row or an old item marked for removal)
+            });
+            
+            // Assign final sequential keys before saving
+            const finalChecklist = newChecklist.map((item, index) => ({
+                ...item,
+                key: `check${index + 1}`
+            }));
+
+
+            if (!isValid) {
+                 return showCustomModal('alertTitle', currentLang === 'th' ? 'กรุณากรอกทั้งหัวข้อภาษาไทยและภาษาอังกฤษให้ครบถ้วนสำหรับรายการที่ไม่ว่างเปล่า' : 'Please complete both Thai and English titles for non-empty items.');
+            }
+
+            if (finalChecklist.length === 0) {
                  return showCustomModal('alertTitle', currentLang === 'th' ? 'รายการตรวจว่างเปล่า โปรดเพิ่มหัวข้อ' : 'Checklist cannot be empty. Please add items.');
             }
 
+            // Save logic
             try {
-                await updateDoc(doc(db, "settings", "config"), { checklist: newChecklist });
+                await updateDoc(doc(db, "settings", "config"), { checklist: finalChecklist });
+                // The onSnapshot listener in loadSettings() will re-render the admin UI automatically
                 showCustomModal('alertTitle', currentLang === 'th' ? 'บันทึกรายการตรวจเรียบร้อยแล้ว' : 'Checklist saved successfully.');
             } catch (error) {
                 showCustomModal('alertTitle', currentLang === 'th' ? 'ไม่สามารถบันทึกรายการตรวจได้: ' + error.message : 'Failed to save checklist: ' + error.message);
@@ -1096,8 +1152,8 @@
                     scale: 2, 
                     allowTaint: true, 
                     useCORS: true,
-                    // Ensure background is captured correctly for PDF (handle dark mode print)
-                    backgroundColor: '#111827' // Forced dark background color
+                    // Set explicit white background for light mode print consistency
+                    backgroundColor: '#ffffff' 
                 });
                 const imgData = canvas.toDataURL('image/png');
                 
@@ -1110,6 +1166,8 @@
 
                 // 1. เพิ่ม Header
                 pdf.setFontSize(14);
+                // Temporarily set text color to black for PDF header in light mode
+                pdf.setTextColor(0, 0, 0); 
                 pdf.text(headerText, pdfWidth / 2, yOffset, { align: 'center' });
                 yOffset += 5;
                 
@@ -1289,7 +1347,7 @@
                     
                     const itemHTML = `
                         <div class="check-item-container">
-                            <p class="font-semibold text-gray-700 dark:text-gray-300 mb-2">${text}</p>
+                            <p class="font-semibold text-gray-700 mb-2">${text}</p>
                             <div class="flex gap-3">
                                 <input type="radio" id="edit-${checkKey}-pass" name="${nameAttr}" value="pass" required ${passChecked}>
                                 <label for="edit-${checkKey}-pass" class="flex-1 check-button pass-button" data-lang-key="passBtn">${translations[currentLang].passBtn}</label>
@@ -1472,7 +1530,8 @@
             // 2. Render Overall Ratio Chart (Doughnut)
             if (overallChart) overallChart.destroy();
             
-            Chart.defaults.color = '#d1d5db'; // Hardcoded dark theme text color for charts
+            // Set chart text color for light mode (dark text)
+            Chart.defaults.color = '#1f2937'; 
             
             overallChart = new Chart(document.getElementById('overallRatioChart'), {
                 type: 'doughnut',
@@ -1521,20 +1580,20 @@
                                 text: translations[currentLang].count
                             },
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)' // Forced dark mode grid color
+                                color: 'rgba(0, 0, 0, 0.1)' // Light mode grid color
                             }
                         },
                         x: {
                             grid: {
-                                color: 'rgba(255, 255, 255, 0.1)' // Forced dark mode grid color
+                                color: 'rgba(0, 0, 0, 0.1)' // Light mode grid color
                             },
                              ticks: {
-                                  // Truncate long labels for better bar chart display
-                                  callback: function(value, index, values) {
-                                      const label = this.getLabelForValue(value);
-                                      return label.length > 15 ? label.substring(0, 15) + '...' : label;
-                                  }
-                             }
+                                 // Truncate long labels for better bar chart display
+                                 callback: function(value, index, values) {
+                                     const label = this.getLabelForValue(value);
+                                     return label.length > 15 ? label.substring(0, 15) + '...' : label;
+                                 }
+                            }
                         }
                     },
                     plugins: {
